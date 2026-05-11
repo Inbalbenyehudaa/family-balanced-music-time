@@ -4,6 +4,7 @@ import { PlankButton } from '../components/PlankButton';
 import { ScreenBackground } from '../components/ScreenBackground';
 import { useAuthStore } from '../store/authStore';
 import { createFamily } from '../api/families';
+import { findPendingInviteForMe } from '../api/invites';
 import { listPirates } from '../api/pirates';
 import { getSettings } from '../api/settings';
 import { usePiratesStore } from '../store/piratesStore';
@@ -27,18 +28,36 @@ export function FamilyNamingScreen() {
     const user = useAuthStore((s) => s.user);
     const refreshFamily = useAuthStore((s) => s.refreshFamily);
 
-    const pendingInvite = readPendingInvite();
+    // Authoritative server-side invite check. Runs on every mount of this
+    // screen and diverts to /invite/:id if the signed-in user has a
+    // pending invite. This catches every path into this screen:
+    //   - race on the magic-link handshake
+    //   - Supabase fell back to a non-invite email template (happens when
+    //     the invitee already has an auth.users row)
+    //   - direct nav from /home when family is null
+    //   - cross-tab or clipboard-pasted invite links
+    // The session-storage latch below is a belt-and-braces fallback for
+    // the rare case where this query fails.
+    const [inviteCheck, setInviteCheck] = useState<
+        'checking' | { id: string } | 'none'
+    >('checking');
     useEffect(() => {
-        if (pendingInvite) {
-            console.warn(
-                '[FamilyNaming] pending invite latch set — diverting to /invite',
-                pendingInvite,
-            );
+        if (!user) {
+            setInviteCheck('none');
+            return;
         }
-    }, [pendingInvite]);
-    if (pendingInvite) {
-        return <Navigate to={`/invite/${pendingInvite}`} replace />;
-    }
+        let cancelled = false;
+        (async () => {
+            const pending = await findPendingInviteForMe();
+            if (cancelled) return;
+            setInviteCheck(pending ? { id: pending.id } : 'none');
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, [user]);
+
+    const latchedInvite = readPendingInvite();
 
     const defaultName =
         user?.displayName && user.displayName.trim().length > 0
@@ -48,6 +67,36 @@ export function FamilyNamingScreen() {
     const [name, setName] = useState(defaultName);
     const [busy, setBusy] = useState(false);
     const [error, setError] = useState<string | null>(null);
+
+    // Divert before rendering if either source of truth says there's a
+    // pending invite for this user. The server check is authoritative;
+    // the latch is a fallback when the query hasn't returned yet.
+    if (typeof inviteCheck === 'object') {
+        console.warn(
+            '[FamilyNaming] server says pending invite — diverting',
+            inviteCheck.id,
+        );
+        return <Navigate to={`/invite/${inviteCheck.id}`} replace />;
+    }
+    if (inviteCheck === 'checking' && latchedInvite) {
+        return <Navigate to={`/invite/${latchedInvite}`} replace />;
+    }
+    if (inviteCheck === 'checking') {
+        // Brief spinner while we wait for the server check. Without this
+        // a fast typist could create a family in the ~100ms window
+        // between mount and the query returning.
+        return (
+            <ScreenBackground variant="parchment">
+                <div className="flex min-h-[100dvh] items-center justify-center">
+                    <div
+                        className="h-8 w-8 rounded-full border-[3px] border-[rgba(93,63,42,0.2)] border-t-wood-deep"
+                        style={{ animation: 'spin 1s linear infinite' }}
+                    />
+                    <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                </div>
+            </ScreenBackground>
+        );
+    }
 
     const submit = async () => {
         const trimmed = name.trim();
