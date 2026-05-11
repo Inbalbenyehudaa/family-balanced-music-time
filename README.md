@@ -28,7 +28,7 @@ Balance — not individual contribution — is the only thing that earns progres
 
 **Progression content.** 15 themed islands and 8 coastal finds (bottle with a note, brass key, rubber duck, music box, etc.) — all Hebrew-named and kid-personalized.
 
-See [`specs/family_pirate_ship_spec_v3.md`](./specs/family_pirate_ship_spec_v3.md) for the full product spec, including privacy posture and the sync model.
+See [`specs/product-spec.md`](./specs/product-spec.md) for the full product spec, including privacy posture and the sync model.
 
 ---
 
@@ -36,28 +36,62 @@ See [`specs/family_pirate_ship_spec_v3.md`](./specs/family_pirate_ship_spec_v3.m
 
 ```
 family-balanced-music-time/
-├── family-pirate-ship/          # The React app — everything runs from here
+├── family-pirate-ship/              # The React app — everything runs from here
 │   ├── src/
-│   │   ├── App.tsx              # Router shell, auth bootstrap, online status
-│   │   ├── routes/              # Route map + auth/family guards
-│   │   ├── screens/             # SignIn, Onboarding, Home, RollCall, Drive,
-│   │   │                        # Spyglass, Reveal, Map, Settings, InviteAccept…
-│   │   ├── store/               # Zustand stores (auth, pirates, drives, settings, sync)
-│   │   ├── api/                 # Supabase client wrappers (auth, families,
-│   │   │                        # pirates, drives, islands, invites, settings)
-│   │   ├── sync/                # IndexedDB write queue + flush worker + pull
-│   │   ├── lib/balance.ts       # Tier calculation (pure; fully tested)
-│   │   ├── hooks/               # useAuthBootstrap, useOnlineStatus, useSyncOnFocus
-│   │   └── data.ts              # ISLANDS + COASTAL_FINDS content
+│   │   ├── App.tsx                  # Router shell, auth bootstrap, online status
+│   │   ├── main.tsx                 # Vite entry
+│   │   ├── TweaksPanel.tsx          # Dev-only floating tweaks panel
+│   │   ├── routes/                  # Route map, auth/family guards, tweak state
+│   │   ├── screens/                 # SignIn, AuthCallback, AuthDebug, Onboarding,
+│   │   │                            # FamilyNaming, RollCall, Home, Drive,
+│   │   │                            # ConfirmEnd, Spyglass, Reveal, Map,
+│   │   │                            # IslandDetail, Settings, InviteAccept
+│   │   ├── components/              # Art, PlankButton, ScreenBackground,
+│   │   │                            # OfflineIndicator, IOSDevice
+│   │   ├── store/                   # Zustand stores (auth, pirates, drives,
+│   │   │                            # settings, sync) + drivesStore tests
+│   │   ├── api/                     # Supabase client wrappers (auth, client,
+│   │   │                            # families, pirates, drives, islands,
+│   │   │                            # invites, settings, errors)
+│   │   ├── sync/                    # IndexedDB queue, flush worker, pull,
+│   │   │                            # resetFamily + queue/worker tests
+│   │   ├── lib/                     # balance.ts (+ test), islandMigration,
+│   │   │                            # pendingInvite
+│   │   ├── hooks/                   # useAuthBootstrap, useOnlineStatus,
+│   │   │                            # useSyncOnFocus
+│   │   ├── strings/                 # Hebrew copy
+│   │   ├── types/                   # Shared TS types (see also types.ts)
+│   │   ├── styles/                  # Global styles
+│   │   ├── assets/                  # avatars, islands, coastal-findings
+│   │   ├── __tests__/               # tier-flow.test.tsx (end-to-end tier flow)
+│   │   ├── data.ts                  # ISLANDS + COASTAL_FINDS content
+│   │   ├── types.ts                 # Top-level shared types
+│   │   └── utils.ts                 # Small shared helpers
 │   ├── supabase/
-│   │   ├── migrations/          # SQL: schema, RLS, RPCs, triggers
-│   │   ├── functions/           # Edge Functions (invite-family-member)
-│   │   └── README.md            # One-time Supabase + Google OAuth setup
+│   │   ├── migrations/              # SQL: schema, RLS, RPCs, triggers
+│   │   ├── functions/               # Edge Functions (invite-family-member)
+│   │   └── README.md                # One-time Supabase + Google OAuth setup
+│   ├── Avatars/                     # Source avatar art
+│   ├── Images/                      # Source island + coastal-find art
+│   ├── Design changes/              # Design iteration notes
+│   ├── microcopy-review.md          # Hebrew microcopy review pass
+│   ├── HANDOFF-v4.md                # Current implementation status + manual test plan
 │   ├── package.json
-│   └── HANDOFF-v3.md            # Current implementation status + manual test plan
+│   ├── vite.config.ts / tsconfig*.json / tailwind.config.js / postcss.config.js
+│   └── vercel.json                  # Vercel deploy config
 │
-├── specs/                       # Product + designer + developer specs (v1 → v3)
-└── initial claude design/       # Original HTML/CSS handoff from claude.ai/design
+├── specs/                           # Current specs (flat)
+│   ├── product-spec.md              # Product spec (trust model, screens, flows)
+│   ├── developer-spec.md            # Developer spec (schema, RLS, API, sync)
+│   ├── designer-spec.md             # Designer spec (visual language, components)
+│   ├── architecture.md              # Architecture overview
+│   ├── api.md                       # API surface reference
+│   ├── sync.md                      # Offline sync model
+│   └── archive/                     # Earlier spec revisions
+│
+└── archive/
+    ├── in-the-making specs/         # Deprecated spec drafts (v1–v3) + NEXT-PHASES
+    └── initial claude design/       # Original HTML/CSS handoff from claude.ai/design
 ```
 
 ---
@@ -125,7 +159,7 @@ First-time flow when the dev server is running:
 3. Start a voyage from the home screen, tap a pirate button, tap "end voyage" → reveal plays.
 4. Open Supabase Studio → `drive` / `drive_participant` tables → the drive and its participants should appear within seconds.
 
-Manual test plan (including offline, two-device, and queue-persistence tests) lives in [`family-pirate-ship/HANDOFF-v3.md`](./family-pirate-ship/HANDOFF-v3.md).
+Manual test plan (including offline, two-device, and queue-persistence tests) lives in [`family-pirate-ship/HANDOFF-v4.md`](./family-pirate-ship/HANDOFF-v4.md).
 
 ---
 
@@ -153,15 +187,18 @@ Manual test plan (including offline, two-device, and queue-persistence tests) li
 
 ## Status
 
-Phases 0–3 shipped (foundation, local refactor, real auth + family creation, sync). Phases 4 (invites + family management), 5 (telemetry + data export + account deletion), and 6 (polish + edge cases) are in progress. See [`family-pirate-ship/HANDOFF-v3.md`](./family-pirate-ship/HANDOFF-v3.md) for exactly what's wired up, what's stubbed, and known gotchas.
+Phases 0–3 shipped (foundation, local refactor, real auth + family creation, sync). Phases 4 (invites + family management), 5 (telemetry + data export + account deletion), and 6 (polish + edge cases) are in progress. See [`family-pirate-ship/HANDOFF-v4.md`](./family-pirate-ship/HANDOFF-v4.md) for exactly what's wired up, what's stubbed, and known gotchas.
 
 ---
 
 ## Further reading
 
-- [`specs/family_pirate_ship_spec_v3.md`](./specs/family_pirate_ship_spec_v3.md) — product spec (trust model, screens, flows, content)
-- [`specs/family_pirate_ship_developer_spec_v3.md`](./specs/family_pirate_ship_developer_spec_v3.md) — developer spec (schema, RLS, API, sync)
-- [`specs/family_pirate_ship_designer_spec v2.md`](./specs/family_pirate_ship_designer_spec%20v2.md) — designer spec (visual language, component library)
-- [`specs/NEXT-PHASES.md`](./specs/NEXT-PHASES.md) — remaining roadmap
+- [`specs/product-spec.md`](./specs/product-spec.md) — product spec (trust model, screens, flows, content)
+- [`specs/developer-spec.md`](./specs/developer-spec.md) — developer spec (schema, RLS, API, sync)
+- [`specs/designer-spec.md`](./specs/designer-spec.md) — designer spec (visual language, component library)
+- [`specs/architecture.md`](./specs/architecture.md) — architecture overview
+- [`specs/api.md`](./specs/api.md) — API surface reference
+- [`specs/sync.md`](./specs/sync.md) — offline sync model
+- [`archive/in-the-making specs/NEXT-PHASES.md`](./archive/in-the-making%20specs/NEXT-PHASES.md) — remaining roadmap
 - [`family-pirate-ship/supabase/README.md`](./family-pirate-ship/supabase/README.md) — backend setup walkthrough
-- [`family-pirate-ship/HANDOFF-v3.md`](./family-pirate-ship/HANDOFF-v3.md) — current implementation state + manual test plan
+- [`family-pirate-ship/HANDOFF-v4.md`](./family-pirate-ship/HANDOFF-v4.md) — current implementation state + manual test plan
