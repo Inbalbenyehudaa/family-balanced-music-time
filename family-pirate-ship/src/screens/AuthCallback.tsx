@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { readPendingInvite } from '../lib/pendingInvite';
+import { findPendingInviteForMe } from '../api/invites';
 
 const RETURN_TO_KEY = 'auth.returnTo';
 
@@ -43,37 +44,54 @@ export function AuthCallbackScreen() {
             nav('/', { replace: true });
             return;
         }
-        // Honor a stashed returnTo before the default routing. The invite
-        // flow depends on this — a signed-out hit to /invite/:token bounces
-        // through /?returnTo=/invite/:token, then back here; the invite
-        // screen itself runs the accept + refreshFamily sequence.
-        const returnTo = popReturnTo();
-        if (returnTo) {
-            nav(returnTo, { replace: true });
-            return;
-        }
-        // If the user arrived via an invite link (latch set by InviteAccept
-        // on mount), send them back there rather than /home or onboarding.
-        // This catches the case where the magic-link handshake redirects to
-        // /auth/callback instead of /invite/:id.
-        const pendingInviteId = readPendingInvite();
-        if (pendingInviteId) {
-            nav(`/invite/${pendingInviteId}`, { replace: true });
-            return;
-        }
-        if (family) {
-            nav('/home', { replace: true });
-            return;
-        }
-        // If refreshFamily errored, don't bounce to onboarding — that's the
-        // loop the user was hitting. The guards' error UI will catch this.
-        if (familyError) {
-            // Still need to get the user off /auth/callback. Go to /home and
-            // let RequireFamily render the error screen.
-            nav('/home', { replace: true });
-            return;
-        }
-        nav('/onboarding/family', { replace: true });
+
+        let cancelled = false;
+        (async () => {
+            // Honor a stashed returnTo before the default routing. The invite
+            // flow depends on this — a signed-out hit to /invite/:token bounces
+            // through /?returnTo=/invite/:token, then back here.
+            const returnTo = popReturnTo();
+            if (returnTo) {
+                if (!cancelled) nav(returnTo, { replace: true });
+                return;
+            }
+            // Sessionstorage latch (best-effort, set by InviteAccept on mount).
+            const latched = readPendingInvite();
+            if (latched) {
+                if (!cancelled) nav(`/invite/${latched}`, { replace: true });
+                return;
+            }
+            // Server-side authoritative check. This is what catches the
+            // "wrong email template" case where Supabase sent a magic link
+            // that redirected to /auth/callback (no latch ever set). If
+            // there's a pending invite for this user's email, divert to it.
+            if (!family) {
+                try {
+                    const pending = await findPendingInviteForMe();
+                    if (cancelled) return;
+                    if (pending) {
+                        nav(`/invite/${pending.id}`, { replace: true });
+                        return;
+                    }
+                } catch {
+                    /* fall through to default routing */
+                }
+            }
+            if (cancelled) return;
+            if (family) {
+                nav('/home', { replace: true });
+                return;
+            }
+            if (familyError) {
+                nav('/home', { replace: true });
+                return;
+            }
+            nav('/onboarding/family', { replace: true });
+        })();
+
+        return () => {
+            cancelled = true;
+        };
     }, [isLoading, user, family, familyError, failedTries, nav]);
 
     return (

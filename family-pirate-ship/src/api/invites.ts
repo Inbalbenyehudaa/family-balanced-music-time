@@ -142,6 +142,37 @@ export async function revokeInvite(inviteId: string): Promise<void> {
 }
 
 /**
+ * Look up any pending invites addressed to the currently-signed-in user
+ * (matched by the JWT's email claim via the existing
+ * `family_invite_select_invitee` RLS policy). Returns the most recent
+ * unexpired one, or null.
+ *
+ * Used by FamilyNaming + AuthCallback as a server-authoritative safety
+ * net for the invite-flow redirect. Session-storage latches are best-
+ * effort — they don't survive cross-tab or wrong-template emails. This
+ * query does.
+ */
+export async function findPendingInviteForMe(): Promise<{
+    id: string;
+    familyId: string;
+} | null> {
+    const { data, error } = await supabase
+        .from('family_invite')
+        .select('id, family_id, expires_at, accepted_at')
+        .is('accepted_at', null)
+        .gt('expires_at', new Date().toISOString())
+        .order('created_at', { ascending: false })
+        .limit(1);
+    if (error) {
+        console.warn('[findPendingInviteForMe] query failed', error);
+        return null;
+    }
+    if (!data || data.length === 0) return null;
+    const row = data[0] as { id: string; family_id: string };
+    return { id: row.id, familyId: row.family_id };
+}
+
+/**
  * Owner-only: list pending invites for the caller's family. Returns an
  * empty array for members (the RPC returns zero rows when the caller
  * isn't an owner).
