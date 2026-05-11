@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import { readPendingInvite } from '../lib/pendingInvite';
 
 const RETURN_TO_KEY = 'auth.returnTo';
 
@@ -49,6 +50,15 @@ export function AuthCallbackScreen() {
         const returnTo = popReturnTo();
         if (returnTo) {
             nav(returnTo, { replace: true });
+            return;
+        }
+        // If the user arrived via an invite link (latch set by InviteAccept
+        // on mount), send them back there rather than /home or onboarding.
+        // This catches the case where the magic-link handshake redirects to
+        // /auth/callback instead of /invite/:id.
+        const pendingInviteId = readPendingInvite();
+        if (pendingInviteId) {
+            nav(`/invite/${pendingInviteId}`, { replace: true });
             return;
         }
         if (family) {

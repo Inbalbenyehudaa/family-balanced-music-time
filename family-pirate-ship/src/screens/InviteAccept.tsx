@@ -7,6 +7,11 @@ import { supabase } from '../api/client';
 import { acceptInvite } from '../api/invites';
 import { pullFamilyState } from '../sync/pull';
 import { useSyncStore } from '../store/syncStore';
+import {
+    clearPendingInvite,
+    rememberPendingInvite,
+    urlHasAuthInFlight,
+} from '../lib/pendingInvite';
 
 type Status =
     | 'loading'
@@ -60,6 +65,16 @@ export function InviteAcceptScreen() {
     const [ctx, setCtx] = useState<InviteContext | null>(null);
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+    // Stamp the pending-invite latch on mount so that *any* redirect to
+    // /onboarding/family (from guards, AuthCallback, RedirectIfAuthed)
+    // can see it and bounce back here instead. This is the safety net
+    // for the race where Supabase's code/hash exchange lands after our
+    // first render — before this latch existed, the spouse landed on
+    // /onboarding/family and created a disconnected duplicate family.
+    useEffect(() => {
+        if (inviteId) rememberPendingInvite(inviteId);
+    }, [inviteId]);
+
     // Look up the invite row. The RLS policy allows SELECT when
     // invitee_email matches the JWT, OR when the caller is a member of
     // the invite's family. For an accepting spouse that means: once the
@@ -67,6 +82,16 @@ export function InviteAcceptScreen() {
     useEffect(() => {
         if (isLoading) return;
         if (!user) {
+            // Supabase's magic-link handshake does an async code/hash
+            // exchange. If the URL still carries `?code=` or `#access_token=`,
+            // the session is mid-flight — keep rendering the spinner and
+            // wait for onAuthStateChange instead of declaring the user
+            // unauthenticated (which would redirect to sign-in and eventually
+            // to onboarding).
+            if (urlHasAuthInFlight()) {
+                setStatus('loading');
+                return;
+            }
             setStatus('need_sign_in');
             return;
         }
@@ -90,12 +115,14 @@ export function InviteAcceptScreen() {
                 if (error) throw error;
 
                 if (!invite) {
+                    clearPendingInvite();
                     setStatus('invalid');
                     return;
                 }
 
                 // Expired?
                 if (Date.parse(invite.expires_at) < Date.now()) {
+                    clearPendingInvite();
                     setStatus('invalid');
                     return;
                 }
@@ -183,6 +210,8 @@ export function InviteAcceptScreen() {
         setErrorMsg(null);
         try {
             await acceptInvite(inviteId);
+            // We're now a member; the latch has served its purpose.
+            clearPendingInvite();
             // CRITICAL ordering: refresh the auth store's family BEFORE
             // navigating. Without this, RequireFamily sees `family: null`
             // and bounces the new member to /onboarding/family — which is
