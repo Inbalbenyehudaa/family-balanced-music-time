@@ -1,6 +1,20 @@
 import type { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import { readPendingInvite } from '../lib/pendingInvite';
+
+/**
+ * When an authed-but-family-less user is about to be bounced to
+ * /onboarding/family, check the pending-invite latch first. If
+ * `/invite/:id` was the entry point but the session landed late and the
+ * spouse got bounced by a guard, this diverts them back to the accept
+ * screen instead of letting them create a disconnected duplicate family.
+ */
+function onboardingOrInvite(): string {
+    const pending = readPendingInvite();
+    if (pending) return `/invite/${pending}`;
+    return '/onboarding/family';
+}
 
 /**
  * Phase 2 guards: real session-aware. `isLoading` is true while the
@@ -93,11 +107,13 @@ export function RequireFamily({ children }: { children: ReactNode }) {
     if (!user) return <Navigate to="/" replace />;
     if (!family && familyError) return <FamilyLookupError message={familyError} />;
     if (!family) {
-        console.warn('[RequireFamily] no family — routing to /onboarding/family', {
+        const dest = onboardingOrInvite();
+        console.warn('[RequireFamily] no family — routing', {
+            dest,
             user,
             familyError,
         });
-        return <Navigate to="/onboarding/family" replace />;
+        return <Navigate to={dest} replace />;
     }
     return <>{children}</>;
 }
@@ -114,6 +130,6 @@ export function RedirectIfAuthed({ children }: { children: ReactNode }) {
     if (isLoading) return <LoadingShell />;
     if (user && family) return <Navigate to="/home" replace />;
     if (user && !family && familyError) return <FamilyLookupError message={familyError} />;
-    if (user && !family) return <Navigate to="/onboarding/family" replace />;
+    if (user && !family) return <Navigate to={onboardingOrInvite()} replace />;
     return <>{children}</>;
 }

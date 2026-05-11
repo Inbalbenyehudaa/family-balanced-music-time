@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { PlankButton } from '../components/PlankButton';
 import { ScreenBackground } from '../components/ScreenBackground';
 import { useAuthStore } from '../store/authStore';
@@ -8,16 +8,37 @@ import { listPirates } from '../api/pirates';
 import { getSettings } from '../api/settings';
 import { usePiratesStore } from '../store/piratesStore';
 import { useSettingsStore } from '../store/settingsStore';
+import { readPendingInvite } from '../lib/pendingInvite';
 
 /**
  * Onboarding step 0: ask for the family's name, create the family row
  * (+ seed three default pirates + default settings, all inside the
  * `create_family` RPC), then route to the rest of onboarding.
+ *
+ * Final guard against the invite-flow duplicate-family bug: if a
+ * pending-invite latch is set, we refuse to render this screen and
+ * divert to /invite/:id. The latch is only ever set by /invite/:id on
+ * mount, so its presence here means the user followed an invite link
+ * but got bounced here by a race; creating a family now would leave
+ * the invite unaccepted and the spouse stranded on their own ship.
  */
 export function FamilyNamingScreen() {
     const nav = useNavigate();
     const user = useAuthStore((s) => s.user);
     const refreshFamily = useAuthStore((s) => s.refreshFamily);
+
+    const pendingInvite = readPendingInvite();
+    useEffect(() => {
+        if (pendingInvite) {
+            console.warn(
+                '[FamilyNaming] pending invite latch set — diverting to /invite',
+                pendingInvite,
+            );
+        }
+    }, [pendingInvite]);
+    if (pendingInvite) {
+        return <Navigate to={`/invite/${pendingInvite}`} replace />;
+    }
 
     const defaultName =
         user?.displayName && user.displayName.trim().length > 0
