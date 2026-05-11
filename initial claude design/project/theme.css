@@ -1,0 +1,206 @@
+/* Family Pirate Ship — Design Tokens */
+:root {
+  /* Sea & sky */
+  --ocean-deep: #1E5F7A;
+  --ocean-bright: #5FA8C7;
+  --ocean-foam: #C5E0E8;
+
+  /* Sand, deck & paper */
+  --sand-warm: #F0D49B;
+  --sand-cream: #FBF1DC;
+  --wood-deep: #5D3F2A;
+  --wood-light: #A87B5A;
+
+  /* Treasure accents */
+  --treasure-gold: #E5B23A;
+  --treasure-red: #C84B3B;
+
+  /* Pirate flags */
+  --flag-kid: #E63946;
+  --flag-mom: #2A9D8F;
+  --flag-dad: #7B4B94;
+
+  /* Tier indicators */
+  --tier-fair: #F4B942;
+  --tier-coastal: #6B95A0;
+  --tier-harbor: #8C7A6B;
+
+  /* Text & UI */
+  --text-primary: #2A2620;
+  --text-secondary: #5D5249;
+  --surface-card: #FBF1DC;
+
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro", system-ui, sans-serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "SF Pro", system-ui, sans-serif;
+  --font-map: -apple-system, BlinkMacSystemFont, "SF Pro", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "SF Pro", system-ui, sans-serif !important; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro", system-ui, sans-serif;
+  color: var(--text-primary);
+  background: #2A2620;
+}
+
+[dir="rtl"] { text-align: right; }
+
+/* Paper / parchment grain */
+.tex-paper {
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(93,63,42,0.05) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(93,63,42,0.04) 0%, transparent 35%),
+    radial-gradient(circle at 50% 50%, rgba(168,123,90,0.03) 0%, transparent 60%),
+    repeating-linear-gradient(45deg, rgba(93,63,42,0.012) 0 2px, transparent 2px 6px),
+    repeating-linear-gradient(-45deg, rgba(93,63,42,0.012) 0 2px, transparent 2px 6px);
+}
+.tex-grain {
+  position: relative;
+}
+.tex-grain::after {
+  content: "";
+  position: absolute; inset: 0;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.36 0 0 0 0 0.25 0 0 0 0 0.16 0 0 0 0.18 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  opacity: 0.32;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+.tex-watercolor {
+  position: relative;
+}
+.tex-watercolor::before {
+  content: "";
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(255,255,255,0.18), transparent 50%),
+    radial-gradient(ellipse at 75% 65%, rgba(0,0,0,0.07), transparent 55%),
+    radial-gradient(ellipse at 50% 90%, rgba(0,0,0,0.04), transparent 40%);
+  pointer-events: none;
+}
+
+/* Hand-drawn ink edge (slight wobble shadow) */
+.ink-edge {
+  filter: drop-shadow(0 1px 0 rgba(93,63,42,0.18));
+}
+.painted-shadow {
+  box-shadow:
+    0 2px 0 rgba(93,63,42,0.1),
+    0 6px 14px rgba(93,63,42,0.18),
+    0 1px 0 rgba(255,255,255,0.5) inset;
+}
+
+/* Painted button */
+.btn-plank {
+  font-family: var(--font-display);
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.18), rgba(0,0,0,0.06)),
+    repeating-linear-gradient(180deg, rgba(93,63,42,0.10) 0 1px, transparent 1px 8px),
+    var(--wood-light);
+  color: var(--text-primary);
+  border-radius: 18px;
+  box-shadow:
+    inset 0 0 0 2px rgba(93,63,42,0.55),
+    inset 0 -3px 0 rgba(93,63,42,0.18),
+    0 6px 0 rgba(93,63,42,0.18),
+    0 10px 22px rgba(93,63,42,0.22);
+  transition: transform 120ms ease-out, box-shadow 120ms ease-out;
+}
+.btn-plank:active {
+  transform: translateY(3px);
+  box-shadow:
+    inset 0 0 0 2px rgba(93,63,42,0.55),
+    inset 0 -2px 0 rgba(93,63,42,0.18),
+    0 3px 0 rgba(93,63,42,0.18),
+    0 4px 10px rgba(93,63,42,0.18);
+}
+.btn-plank.sand {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.22), rgba(0,0,0,0.05)),
+    repeating-linear-gradient(180deg, rgba(93,63,42,0.07) 0 1px, transparent 1px 8px),
+    var(--sand-warm);
+}
+.btn-plank.cream {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.3), rgba(0,0,0,0.04)),
+    var(--sand-cream);
+}
+
+/* Pulse glow keyframes */
+@keyframes glowPulse {
+  0%, 100% { box-shadow: var(--glow-low); }
+  50% { box-shadow: var(--glow-high); }
+}
+@keyframes softPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.95; }
+}
+@keyframes musicBar {
+  0%, 100% { height: 4px; }
+  50%      { height: 18px; }
+}
+@keyframes bob {
+  0%, 100% { transform: translateY(0) rotate(-0.6deg); }
+  50% { transform: translateY(-3px) rotate(0.6deg); }
+}
+@keyframes drift {
+  0% { transform: translateX(-30px); }
+  100% { transform: translateX(420px); }
+}
+@keyframes seagullDrift {
+  0% { transform: translate(-40px, 0) scaleX(1); }
+  45% { transform: translate(220px, -10px) scaleX(1); }
+  50% { transform: translate(220px, -10px) scaleX(-1); }
+  100% { transform: translate(-40px, 6px) scaleX(-1); }
+}
+@keyframes irisOut {
+  0% { clip-path: circle(120% at 50% 50%); }
+  100% { clip-path: circle(0% at 50% 50%); }
+}
+@keyframes irisIn {
+  0% { clip-path: circle(0% at 50% 50%); }
+  100% { clip-path: circle(120% at 50% 50%); }
+}
+@keyframes splash {
+  0% { transform: scale(0.4) rotate(-8deg); opacity: 0; }
+  60% { transform: scale(1.1) rotate(2deg); opacity: 1; }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+@keyframes shipSail {
+  0% { transform: translateX(-160px); }
+  100% { transform: translateX(160px); }
+}
+@keyframes fogClear {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.4); }
+}
+@keyframes fadeUp {
+  0% { transform: translateY(20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+@keyframes fadeOnly {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+@keyframes slideUp {
+  0% { transform: translateY(100%); }
+  100% { transform: translateY(0); }
+}
+@keyframes spyglassExtend {
+  0% { transform: translate(-30px, -30px) rotate(-30deg) scale(0.4); opacity: 0; }
+  100% { transform: translate(0,0) rotate(0deg) scale(1); opacity: 1; }
+}
+@keyframes pennantWave {
+  0%, 100% { transform: skewY(-2deg); }
+  50% { transform: skewY(2deg); }
+}
+@keyframes coinShimmer {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.18); }
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
