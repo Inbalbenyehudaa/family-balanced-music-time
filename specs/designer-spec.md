@@ -284,7 +284,7 @@ Parchment background. Top row: back arrow (right — flex-row-reverse), "הגד�
 - Ship: PirateShip (composite — hull, 3 masts, 3 sails, 3 pennants, 3 cargo zones, rising music notes, crow's nest on center mast)
 - Identity: FlagBadge
 - Icons: CompassIcon, SpyglassIcon, AnchorIcon, MapIcon, PirateFlagIcon
-- Verdict: PennantBanner
+- Verdict: FrostedBanner
 - Frame: `CoastalFindIcon` water-halo frame, `IslandIllustration` circular frame
 
 ### 6.2 Raster (`src/assets/`)
