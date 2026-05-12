@@ -175,19 +175,6 @@ export function ScreenSettings({
                         />
                     </SettingsSection>
 
-                    <SettingsSection title="כללי">
-                        <SettingToggle
-                            label="🔊 צלילים"
-                            value={settings.audio}
-                            onChange={(v) => setSettings({ ...settings, audio: v })}
-                        />
-                        <SettingToggle
-                            label="🌫️ ערפל על איים בלתי מגולים"
-                            value={settings.fog}
-                            onChange={(v) => setSettings({ ...settings, fog: v })}
-                        />
-                    </SettingsSection>
-
                     <SettingsSection title="היסטוריה">
                         {drives.length === 0 ? (
                             <div className="py-[14px] text-center text-text-secondary">
@@ -343,35 +330,6 @@ function SettingSlider({
                 className="w-full"
                 style={{ accentColor: 'var(--treasure-gold)' }}
             />
-        </div>
-    );
-}
-
-function SettingToggle({
-    label,
-    value,
-    onChange,
-}: {
-    label: string;
-    value: boolean;
-    onChange: (v: boolean) => void;
-}) {
-    return (
-        <div className="flex items-center justify-between border-b border-dashed border-[rgba(93,63,42,0.2)] py-[10px]">
-            <span className="text-base text-text-primary">{label}</span>
-            <button
-                onClick={() => onChange(!value)}
-                className="relative h-8 w-14 cursor-pointer rounded-[18px] border-none transition-colors duration-200"
-                style={{ background: value ? 'var(--flag-mom)' : '#C0B5A6' }}
-            >
-                <div
-                    className="absolute top-[3px] h-[26px] w-[26px] rounded-[13px] bg-[#FBF1DC] transition-[left] duration-200"
-                    style={{
-                        left: value ? 3 : 27,
-                        boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
-                    }}
-                />
-            </button>
         </div>
     );
 }
