@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import type { Pirate, Tier } from '../types';
-import { PennantBanner, PirateShip, PirateAvatar } from '../components/Art';
+import { PirateShip, PirateAvatar, FrostedBanner } from '../components/Art';
 import { ScreenBackground } from '../components/ScreenBackground';
 import { computeTier } from '../utils';
 
@@ -55,14 +55,14 @@ export function ScreenSpyglass({
     );
 
     const bannerMap: Record<Tier, { tier: Tier; text: ReactNode }> = {
-        fair: { tier: 'fair', text: '⛵ רוח גבית! זמן האזנה שווה' },
-        coastal: { tier: 'coastal', text: '🌊 הספינה קצת נטויה...אזנו את הזמן' },
+        fair: { tier: 'fair', text: 'רוח גבית! זמן האזנה שווה ⛵' },
+        coastal: { tier: 'coastal', text: 'הספינה קצת נטויה... אזנו את הזמן 🌊' },
         harbor: {
             tier: 'harbor',
             text: (
                 <span className="inline-flex items-center gap-[6px]">
-                    {harborIcon}
                     <span>מישהו משתלט, אתם לא זזים</span>
+                    {harborIcon}
                 </span>
             ),
         },
@@ -103,8 +103,10 @@ export function ScreenSpyglass({
                 </div>
 
                 {/* Tier banner */}
-                <div className="pointer-events-none mt-6 px-2">
-                    <PennantBanner tier={banner.tier}>{banner.text}</PennantBanner>
+                <div className="mt-6 px-6">
+                    <div style={{ width: 'min(260px, 75vw)', marginInline: 'auto' }}>
+                        <FrostedBanner tier={banner.tier}>{banner.text}</FrostedBanner>
+                    </div>
                 </div>
 
                 {/* Ship scene — centered in remaining space */}

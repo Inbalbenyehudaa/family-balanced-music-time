@@ -194,7 +194,7 @@ export function ScreenDrive({
                                 color: holdProgress > 0.4 ? '#FBF1DC' : 'var(--text-primary)',
                             }}
                         >
-                            🪵 סיימו הפלגה
+                            סיימו הפלגה
                         </div>
                         <div
                             className="absolute -left-[2px] top-[6px] h-8 w-[6px] rounded-[3px] opacity-70"

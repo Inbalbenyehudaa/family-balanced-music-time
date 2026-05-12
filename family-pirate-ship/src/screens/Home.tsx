@@ -50,7 +50,7 @@ export function ScreenHome({
                 </div>
 
                 {/* Ship — hero */}
-                <div className="flex flex-1 items-center justify-center py-6">
+                <div className="flex flex-1 items-end justify-center pb-2">
                     <div
                         className="w-full"
                         style={{ maxWidth: 'min(100%, clamp(240px, 72vw, 420px))' }}
