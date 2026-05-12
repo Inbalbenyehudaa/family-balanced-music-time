@@ -73,9 +73,9 @@ family-balanced-music-time/
 │   │   └── README.md                # One-time Supabase + Google OAuth setup
 │   ├── Avatars/                     # Source avatar art
 │   ├── Images/                      # Source island + coastal-find art
-│   ├── Design changes/              # Design iteration notes
 │   ├── microcopy-review.md          # Hebrew microcopy review pass
 │   ├── HANDOFF-v4.md                # Current implementation status + manual test plan
+│   ├── index.html                   # Vite HTML entry
 │   ├── package.json
 │   ├── vite.config.ts / tsconfig*.json / tailwind.config.js / postcss.config.js
 │   └── vercel.json                  # Vercel deploy config

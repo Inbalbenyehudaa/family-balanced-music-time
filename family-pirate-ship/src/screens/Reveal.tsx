@@ -28,6 +28,7 @@ export function ScreenReveal({
 }) {
     const tier = computeTier(minutes, active);
     const [stage, setStage] = useState(0);
+    const [outcomeSize, setOutcomeSize] = useState(160);
 
     useEffect(() => {
         const timers = [
@@ -38,6 +39,16 @@ export function ScreenReveal({
             setTimeout(() => setStage(5), 5800),
         ];
         return () => timers.forEach(clearTimeout);
+    }, []);
+
+    useEffect(() => {
+        const update = () => {
+            const vw = window.innerWidth;
+            setOutcomeSize(Math.max(140, Math.min(170, vw * 0.42)));
+        };
+        update();
+        window.addEventListener('resize', update);
+        return () => window.removeEventListener('resize', update);
     }, []);
 
     const max = Math.max(...minutes, 1);
@@ -147,17 +158,19 @@ export function ScreenReveal({
             {/* Verdict banner */}
             {stage >= 4 && (
                 <div
-                    className="absolute inset-x-6"
+                    className="absolute inset-x-0 z-[6] flex justify-center"
                     style={{
-                        top: 'clamp(40px, 9vh, 100px)',
+                        top: 'clamp(16px, 3.5vh, 40px)',
                         animation: 'fadeUp 700ms',
                     }}
                 >
+                    <div style={{ width: 'min(260px, 75vw)' }}>
                     <FrostedBanner tier={tier}>
                         {tier === 'fair' && 'האזנה משותפת - אי חדש התגלה!'}
                         {tier === 'coastal' && 'האזנה קצת נטויה - מצאתם משהו על החוף!'}
                         {tier === 'harbor' && 'נתקעתם בנמל - נסו לחלוק יותר פעם הבאה'}
                     </FrostedBanner>
+                    </div>
                 </div>
             )}
 
@@ -166,7 +179,7 @@ export function ScreenReveal({
                 <div
                     className="absolute inset-x-0 flex justify-center"
                     style={{
-                        top: 'clamp(130px, 22vh, 230px)',
+                        top: 'clamp(115px, 23vh, 195px)',
                         animation: 'fadeUp 1200ms ease-out 800ms backwards',
                     }}
                 >
@@ -179,7 +192,7 @@ export function ScreenReveal({
                                 animation: 'fogClear 2000ms ease-out 1000ms forwards',
                             }}
                         />
-                        <IslandIllustration island={unlockIsland} size={200} />
+                        <IslandIllustration island={unlockIsland} size={outcomeSize} />
                     </div>
                 </div>
             )}
@@ -189,11 +202,11 @@ export function ScreenReveal({
                 <div
                     className="absolute inset-x-0 flex justify-center"
                     style={{
-                        top: 'calc(clamp(170px, 26vh, 270px) - 21px)',
+                        top: 'clamp(115px, 23vh, 195px)',
                         animation: 'fadeUp 1200ms ease-out 600ms backwards',
                     }}
                 >
-                    <CoastalFindIcon find={coastalFind} size={200} />
+                    <CoastalFindIcon find={coastalFind} size={outcomeSize} />
                 </div>
             )}
 

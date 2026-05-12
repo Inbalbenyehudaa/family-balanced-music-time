@@ -126,8 +126,8 @@ Letter-spacing is only bumped for map-style labels (`letterSpacing: 0.2–0.4`).
 | Radius | Used on |
 |---|---|
 | `rounded-full` | Circular buttons (settings compass, close X), map island markers |
-| `rounded-[14px]` | End-voyage wood button, family-name input |
-| `rounded-[18px]` | PlankButton, FrostedBanner, math-gate input |
+| `rounded-[14px]` | End-voyage wood button, family-name input, FrostedBanner |
+| `rounded-[18px]` | PlankButton, math-gate input |
 | `rounded-[20px]–[22px]` | Pirate-row buttons on Drive, Names cards |
 | `rounded-2xl` (16px) | Stats-drawer, history cards |
 | `rounded-[28px]` | Bottom-sheet modals (RollCall, IslandDetail) |
@@ -166,7 +166,7 @@ File: `src/components/ScreenBackground.tsx`. Renders a full-bleed layer beneath 
 
 | Variant | Used by | What it depicts |
 |---|---|---|
-| `harbor` | SignIn, Welcome, CrewReady, Home, Reveal (post-iris) | Dawn-to-day gradient sky `#C5E0E8 → #E5C8A8 → #E5B23A → #5FA8C7 → #1E5F7A`, sun + halo, two watercolor clouds, two drifting seagulls, SVG wave band at the bottom. This is the "home world" backdrop. |
+| `harbor` | SignIn, Welcome, CrewReady, Home, Reveal (post-iris) | Dawn-to-day gradient sky `#C5E0E8 → #E5C8A8 → #E5B23A → #5FA8C7 → #1E5F7A`, sun + halo at `calc(38% - 5px)` from top, two watercolor clouds, two drifting seagulls, SVG wave band at the bottom. This is the "home world" backdrop. |
 | `parchment` | Names, FamilyNaming, Math Gate, Settings | `sand-cream` + `.tex-paper` (layered radial + cross-hatch) + `.tex-grain` (SVG fractal-noise overlay at 32% opacity). "Opened ship's logbook." |
 | `waves` | Drive | `sand-cream` base + 12 layered SVG wave lines at 40% opacity. Minimalist — deliberately quieter than harbor. |
 | `dark` | Reveal (pre-iris only) | Solid `#1E1612`. |
@@ -200,8 +200,8 @@ One 1,200-line file, all inline React + SVG. No separate files per illustration.
 - `CoastalFindIcon({ find, size, label })` — raster find image clipped into a circle over a soft `#C5E0E8`/`#5FA8C7` water halo. Missing image falls back to a "?" glyph over a gold disc.
 
 **Verdict banners (Reveal + Spyglass)**
-- `PennantBanner({ tier, children })` — SVG pennant path (320×64 viewBox, notched trailing edges), filled with the tier color (`#F4B942` / `#6B95A0` / `#8C7A6B`) and stroked. "Fair" variant adds a radial sunburst of 8 lines behind the text. Text is centered inside at 22px bold with tier-appropriate shadow.
-- `FrostedBanner({ children })` — iOS-style frosted glass card (`backdrop-filter: blur(18px) saturate(1.35)`) over whatever scene it sits on. Used once: Reveal stage 4, the verdict line. Single "tier-agnostic" treatment — the tier cue comes from the card below it, not the banner chrome.
+- `FrostedBanner({ children })` — iOS-style frosted glass chip (`backdrop-filter: blur(10px) saturate(1.35)`, fill `rgba(251,241,220,0.06)`, padding `8px 16px`, fontSize 15, radius 14). Used in both Reveal (stage 4 verdict line, top of screen) and Spyglass (tier banner, top of screen). Width constrained to `min(260px, 75vw)` on both screens so it reads as a subtitle chip, not a header bar. Single "tier-agnostic" treatment — the `tier` prop is accepted but not visually applied; the tier cue comes from copy + the card below it.
+- `PennantBanner({ tier, children })` — SVG pennant path (320×64 viewBox, notched trailing edges), filled with the tier color. **No longer used by any screen** (Spyglass migrated to `FrostedBanner`). Export retained in `Art.tsx` for now; candidate for removal.
 
 ### 4.4 `OfflineIndicator`
 
@@ -239,7 +239,7 @@ The most load-bearing screen. Structure is deliberately minimal:
 
 ### 5.4 Spyglass — mid-drive peek
 
-`sky` background (cleanest), Pennant banner at top declaring the current tier in kid-readable language, ship centered with `sailing` + `bobbing` + avatars floating above cargo stacks, water foreground band at the bottom. "Peek the state" screen; no CTA. Close button (X) in the top-left.
+`sky` background (cleanest), FrostedBanner at top declaring the current tier in kid-readable language (tier emoji/icon appears at the visual-left end of the Hebrew text), ship centered with `sailing` + `bobbing` + avatars floating above cargo stacks, water foreground band at the bottom. "Peek the state" screen; no CTA. Close button (X) in the top-left.
 
 ### 5.5 Reveal — the cinematic
 
@@ -251,7 +251,7 @@ Five animation stages driven by `setState(stage)` with hardcoded timeouts in `sr
 | 1 | 1500 | HarborScene iris-in (`irisIn` clip-path 1500ms). "סוף ההפלגה!" card drops in with `splash` (tilt -2deg, treasure-gold background, 3px wood-deep border). |
 | 2 | 2200 | Ship fades up (`fadeUp` 600ms), cargo stacks populate. |
 | 3 | 3000 | (Title exits — it renders only for `stage >= 1 && stage < 3`.) |
-| 4 | 3800 | Verdict FrostedBanner appears; tier-specific content block appears below: Fair → IslandIllustration fogs in (`fogClear` 2000ms) at 200px; Coastal → CoastalFindIcon fades in at 200px; Harbor → no artifact. |
+| 4 | 3800 | Verdict FrostedBanner appears at `clamp(16px, 3.5vh, 40px)` from top, width `min(260px, 75vw)`; tier-specific content block appears below at `clamp(115px, 23vh, 195px)`, runtime-sized 140–170px (tracks sun at `calc(38% - 5px)`): Fair → IslandIllustration fogs in (`fogClear` 2000ms); Coastal → CoastalFindIcon fades in; Harbor → no artifact. Inner label rendered at fontSize 15 to match the banner. |
 | 5 | 5800 | "שמור והתחל ⚓" PlankButton fades up. |
 
 The animation stages are inline in Reveal.tsx — no reveal primitive is extracted.
