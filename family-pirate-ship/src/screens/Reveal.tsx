@@ -128,7 +128,7 @@ export function ScreenReveal({
                 <div
                     className="absolute inset-x-0"
                     style={{
-                        bottom: 'clamp(80px, 14vh, 180px)',
+                        bottom: 'clamp(80px, 14dvh, 180px)',
                         animation: 'fadeUp 600ms',
                     }}
                 >
@@ -213,7 +213,7 @@ export function ScreenReveal({
                 <div
                     className="absolute inset-x-0 flex justify-center"
                     style={{
-                        top: 'clamp(115px, 23vh, 195px)',
+                        top: 'clamp(81px, 19vh, 171px)',
                         animation: 'fadeUp 1200ms ease-out 800ms backwards',
                     }}
                 >
@@ -236,7 +236,7 @@ export function ScreenReveal({
                 <div
                     className="absolute inset-x-0 flex justify-center"
                     style={{
-                        top: 'clamp(115px, 23vh, 195px)',
+                        top: 'clamp(81px, 19vh, 171px)',
                         animation: 'fadeUp 1200ms ease-out 600ms backwards',
                     }}
                 >

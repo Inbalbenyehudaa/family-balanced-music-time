@@ -94,7 +94,7 @@ export function HarborScene({
                 style={{
                     position: 'absolute',
                     left: '50%',
-                    top: 'calc(38% - 5px)',
+                    top: 'calc(38% - 60px)',
                     transform: 'translate(-50%, -50%)',
                     width: 90,
                     height: 90,
@@ -109,7 +109,7 @@ export function HarborScene({
                 style={{
                     position: 'absolute',
                     left: '50%',
-                    top: 'calc(38% - 5px)',
+                    top: 'calc(38% - 60px)',
                     transform: 'translate(-50%, -50%)',
                     width: 260,
                     height: 260,
