@@ -31,7 +31,9 @@ These issues affect every screen. Fix them before addressing per-screen items �
 ---
 
 ### A1 · Web fonts are loaded but never render
-**Priority: P1**
+**Priority: P1 — DEFERRED (2026-05-13)**
+
+**Status.** Attempted in session p1-ux-pass on 2026-05-13. The token swap and `!important` removal worked at the body level (Heebo rendered on most surfaces), but `PlankButton` children and the inline-styled tier banner did not pick up `var(--font-display)` cleanly, and the system font remained on the two highest-stakes labels (Drive end-voyage button, Reveal save button). Inbal chose to revert and stay on SF Pro rather than ship a half-rendered typography pass. Not retrying without a designer pass on the full type system.
 
 **Problem.** `index.html` loads Frank Ruhl Libre (serif, Hebrew-native), Heebo (rounded sans, Hebrew-native), and Suez One (decorative display). These are the right typefaces for a children's storybook register. But `theme.css:37–45` overrides all of them:
 ```css

@@ -886,6 +886,33 @@ export function AnchorIcon({ size = 22, color = '#5D3F2A' }: { size?: number; co
     );
 }
 
+export function LockIcon({ size = 22, color = '#5D3F2A' }: { size?: number; color?: string }) {
+    return (
+        <svg width={size} height={size} viewBox="0 0 24 24">
+            <path
+                d="M7 11 V8 Q7 4 12 4 Q17 4 17 8 V11"
+                fill="none"
+                stroke={color}
+                strokeWidth="1.8"
+                strokeLinecap="round"
+            />
+            <rect
+                x="5"
+                y="11"
+                width="14"
+                height="10"
+                rx="2"
+                fill="none"
+                stroke={color}
+                strokeWidth="1.8"
+                strokeLinejoin="round"
+            />
+            <circle cx="12" cy="15.5" r="1.4" fill={color} />
+            <line x1="12" y1="16.5" x2="12" y2="18.5" stroke={color} strokeWidth="1.6" strokeLinecap="round" />
+        </svg>
+    );
+}
+
 export function MapIcon({ size = 22 }: { size?: number }) {
     return (
         <svg width={size} height={size} viewBox="0 0 24 24">
