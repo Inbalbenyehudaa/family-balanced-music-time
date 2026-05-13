@@ -189,20 +189,17 @@ export function ScreenDrive({
                             style={{
                                 width: `${holdProgress * 100}%`,
                                 background:
-                                    'linear-gradient(90deg, var(--action-danger) 0%, var(--wood-deep) 100%)',
+                                    'linear-gradient(180deg, rgba(255,255,255,0.25), rgba(0,0,0,0.05)), var(--treasure-gold)',
                             }}
                         />
                         <div
                             className="absolute inset-0 flex flex-row-reverse items-center justify-center gap-2 font-body text-base font-semibold transition-colors duration-100"
                             style={{
-                                color: holdProgress > 0.4 ? '#FBF1DC' : 'var(--text-primary)',
+                                color: 'var(--text-primary)',
                             }}
                         >
                             <span>סיימו הפלגה</span>
-                            <AnchorIcon
-                                size={22}
-                                color={holdProgress > 0.4 ? '#FBF1DC' : '#5D3F2A'}
-                            />
+                            <AnchorIcon size={22} color="#5D3F2A" />
                         </div>
                         <div
                             className="absolute -left-[2px] top-[10px] h-9 w-[6px] rounded-[3px] opacity-70"
