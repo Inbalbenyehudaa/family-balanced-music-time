@@ -309,6 +309,18 @@ body {
         transform: translate(-40px, 6px) scaleX(-1);
     }
 }
+/* Brief screen-darken used as a "weight" gate before the irreversible
+   end-voyage confirm modal. Holds at 0.85 so the modal splashes in
+   over a near-black field. */
+@keyframes fadeBlack {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 0.85;
+    }
+}
+
 @keyframes irisOut {
     0% {
         clip-path: circle(120% at 50% 50%);
