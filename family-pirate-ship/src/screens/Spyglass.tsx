@@ -20,7 +20,7 @@ export function ScreenSpyglass({
     const tier = computeTier(minutes, active);
     const stacks = minutes.map((m, i) => {
         if (!active[i]) return 0;
-        if (m === 0) return 1;
+        if (m === 0) return 0;
         return Math.max(1, Math.round((m / max) * 7));
     });
 

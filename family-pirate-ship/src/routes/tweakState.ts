@@ -7,8 +7,8 @@
  * consumer side. The TweaksPanel already self-hides in production.
  */
 export const tweakState = {
-    // Off in production so the Drive timer reflects real wall-clock time.
-    // Flip on via the dev TweaksPanel when you want to burn through a
-    // voyage for testing.
-    demoFastClock: false,
+    // TEMPORARY: on in production for 8× time acceleration during testing.
+    // Flip back to false (and redeploy) to return to real-time — the
+    // TweaksPanel is DEV-only so there is no in-app toggle in prod.
+    demoFastClock: true,
 };
