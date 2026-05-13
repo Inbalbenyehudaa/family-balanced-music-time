@@ -6,10 +6,30 @@ import {
     FrostedBanner,
     IslandIllustration,
     CoastalFindIcon,
+    AnchorIcon,
 } from '../components/Art';
 import { PlankButton } from '../components/PlankButton';
 import { ScreenBackground } from '../components/ScreenBackground';
 import { computeTier } from '../utils';
+
+function TinyIslandIcon({ size = 24 }: { size?: number }) {
+    return (
+        <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="11" fill="#5FA8C7" opacity="0.35" />
+            <path d="M4 16 Q12 9 20 16 L20 18 L4 18 Z" fill="#F0D49B" />
+            <path d="M13 14 L13 8 M13 8 Q11 8.5 10 10 M13 8 Q15 8.5 16 10" stroke="#3F7A3F" strokeWidth="1.4" strokeLinecap="round" fill="none" />
+        </svg>
+    );
+}
+
+function WaveIcon({ size = 24 }: { size?: number }) {
+    return (
+        <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M2 13 Q6 9 10 13 T18 13 T22 13" stroke="#5FA8C7" strokeWidth="2" fill="none" strokeLinecap="round" />
+            <path d="M2 17 Q6 13 10 17 T18 17 T22 17" stroke="#5FA8C7" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.6" />
+        </svg>
+    );
+}
 
 export function ScreenReveal({
     pirates,
@@ -166,9 +186,23 @@ export function ScreenReveal({
                 >
                     <div style={{ width: 'min(260px, 75vw)' }}>
                     <FrostedBanner tier={tier}>
-                        {tier === 'fair' && 'האזנה משותפת - אי חדש התגלה!'}
-                        {tier === 'coastal' && 'האזנה קצת נטויה - מצאתם משהו על החוף!'}
-                        {tier === 'harbor' && 'נתקעתם בנמל - נסו לחלוק יותר פעם הבאה'}
+                        <span className="inline-flex flex-row-reverse items-center justify-center gap-2">
+                            {tier === 'fair' && (
+                                <>
+                                    <span>האזנה משותפת - אי חדש התגלה!</span>
+                                    <TinyIslandIcon size={24} />
+                                </>
+                            )}
+                            {tier === 'coastal' && (
+                                <>
+                                    <span>האזנה קצת נטויה - מצאתם משהו על החוף!</span>
+                                    <WaveIcon size={24} />
+                                </>
+                            )}
+                            {tier === 'harbor' && (
+                                <span>נתקעתם בנמל - נסו לחלוק יותר פעם הבאה</span>
+                            )}
+                        </span>
                     </FrostedBanner>
                     </div>
                 </div>
@@ -219,7 +253,12 @@ export function ScreenReveal({
                         animation: 'fadeUp 500ms ease-out',
                     }}
                 >
-                    <PlankButton onClick={onDone}>שמור והתחל ⚓</PlankButton>
+                    <PlankButton onClick={onDone}>
+                        <span className="inline-flex flex-row-reverse items-center gap-2">
+                            <span>שמור והתחל</span>
+                            <AnchorIcon size={22} color="#5D3F2A" />
+                        </span>
+                    </PlankButton>
                 </div>
             )}
         </div>
