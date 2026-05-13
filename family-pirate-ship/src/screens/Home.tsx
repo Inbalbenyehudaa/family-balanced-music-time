@@ -27,19 +27,19 @@ export function ScreenHome({
                     <button
                         onClick={onSettings}
                         aria-label="הגדרות"
-                        className="flex h-11 w-11 cursor-pointer items-center justify-center rounded-full border-none bg-[rgba(251,241,220,0.85)]"
+                        className="flex h-[50px] w-[50px] cursor-pointer items-center justify-center rounded-full border-none bg-[rgba(251,241,220,0.85)]"
                         style={{
                             boxShadow:
                                 '0 2px 6px rgba(93,63,42,0.25), inset 0 0 0 1.5px rgba(93,63,42,0.4)',
                         }}
                     >
-                        <CompassIcon size={26} />
+                        <CompassIcon size={28} />
                     </button>
 
                     <button
                         onClick={onMap}
                         aria-label="פתח מפה"
-                        className="flex cursor-pointer items-center gap-[6px] rounded-[20px] border-none bg-[rgba(251,241,220,0.85)] px-3 py-[6px] font-display text-base font-bold text-text-primary"
+                        className="flex h-[50px] cursor-pointer items-center gap-[6px] rounded-[20px] border-none bg-[rgba(251,241,220,0.85)] px-4 py-2 font-display text-base font-bold text-text-primary"
                         style={{
                             boxShadow:
                                 '0 2px 6px rgba(93,63,42,0.25), inset 0 0 0 1.5px rgba(93,63,42,0.4)',

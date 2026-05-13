@@ -169,7 +169,7 @@ export function ScreenDrive({
                 {/* End voyage — footer; in RTL-column the button sits on the trailing/left side */}
                 <div className="flex justify-start pt-2">
                     <div
-                        className="relative h-11 w-[130px] cursor-pointer select-none overflow-hidden rounded-[14px] touch-none"
+                        className="relative h-14 w-[130px] cursor-pointer select-none overflow-hidden rounded-[14px] touch-none"
                         style={{
                             background: `
               linear-gradient(180deg, rgba(255,255,255,0.2), rgba(0,0,0,0.05)),
@@ -197,14 +197,14 @@ export function ScreenDrive({
                             סיימו הפלגה
                         </div>
                         <div
-                            className="absolute -left-[2px] top-[6px] h-8 w-[6px] rounded-[3px] opacity-70"
+                            className="absolute -left-[2px] top-[10px] h-9 w-[6px] rounded-[3px] opacity-70"
                             style={{
                                 background:
                                     'repeating-linear-gradient(0deg, #5D3F2A 0 3px, #A87B5A 3px 6px)',
                             }}
                         />
                         <div
-                            className="absolute -right-[2px] top-[6px] h-8 w-[6px] rounded-[3px] opacity-70"
+                            className="absolute -right-[2px] top-[10px] h-9 w-[6px] rounded-[3px] opacity-70"
                             style={{
                                 background:
                                     'repeating-linear-gradient(0deg, #5D3F2A 0 3px, #A87B5A 3px 6px)',
