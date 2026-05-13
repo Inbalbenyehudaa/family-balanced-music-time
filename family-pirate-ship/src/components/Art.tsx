@@ -932,14 +932,35 @@ export function MapIcon({ size = 22 }: { size?: number }) {
 }
 
 export function PirateFlagIcon({ size = 20, color = '#2A2620' }: { size?: number; color?: string }) {
+    const skull = '#FBF1DC';
     return (
         <svg width={size} height={size} viewBox="0 0 24 24">
-            <line x1="4" y1="2" x2="4" y2="22" stroke="#5D3F2A" strokeWidth="1.6" />
-            <rect x="5" y="3" width="16" height="11" fill={color} />
-            <circle cx="13" cy="8" r="2.4" fill="#FBF1DC" />
-            <circle cx="11.8" cy="7.6" r="0.4" fill={color} />
-            <circle cx="14.2" cy="7.6" r="0.4" fill={color} />
-            <path d="M10 11 l6 0" stroke="#FBF1DC" strokeWidth="0.8" />
+            {/* Flag cloth — full canvas, no pole */}
+            <rect x="1" y="3" width="22" height="18" rx="1.5" fill={color} />
+            {/* Skull — cranium */}
+            <ellipse cx="12" cy="10.5" rx="4.2" ry="3.8" fill={skull} />
+            {/* Skull — jaw */}
+            <path
+                d="M9 13.2 Q9 15.4 12 15.6 Q15 15.4 15 13.2 Z"
+                fill={skull}
+            />
+            {/* Eye sockets */}
+            <ellipse cx="10.4" cy="10.4" rx="0.95" ry="1.15" fill={color} />
+            <ellipse cx="13.6" cy="10.4" rx="0.95" ry="1.15" fill={color} />
+            {/* Nose */}
+            <path d="M11.6 12.3 L12 13.2 L12.4 12.3 Z" fill={color} />
+            {/* Teeth gap */}
+            <line x1="12" y1="13.6" x2="12" y2="15.4" stroke={color} strokeWidth="0.5" />
+            <line x1="10.6" y1="14" x2="10.6" y2="15.2" stroke={color} strokeWidth="0.4" />
+            <line x1="13.4" y1="14" x2="13.4" y2="15.2" stroke={color} strokeWidth="0.4" />
+            {/* Crossbones — drawn behind skull would mean reordering; instead draw the
+                two bones diagonally across the lower flag, ends visible past skull */}
+            <g stroke={skull} strokeWidth="1.4" strokeLinecap="round">
+                <line x1="6.5" y1="17.5" x2="17.5" y2="17.5" />
+            </g>
+            {/* Bone knobs — flank the crossbar so it reads as a single bone */}
+            <circle cx="6.2" cy="17.5" r="1" fill={skull} />
+            <circle cx="17.8" cy="17.5" r="1" fill={skull} />
         </svg>
     );
 }

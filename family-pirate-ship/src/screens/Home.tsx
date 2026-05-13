@@ -1,5 +1,5 @@
 import type { Pirate } from '../types';
-import { PirateShip, CompassIcon, MapIcon } from '../components/Art';
+import { PirateShip, CompassIcon, MapIcon, PirateFlagIcon } from '../components/Art';
 import { PlankButton } from '../components/PlankButton';
 import { ScreenBackground } from '../components/ScreenBackground';
 
@@ -72,7 +72,10 @@ export function ScreenHome({
                         size="lg"
                         style={{ height: 72, fontSize: 24 }}
                     >
-                        🏴‍☠️ הפלגה חדשה
+                        <span className="inline-flex flex-row-reverse items-center gap-2">
+                            <span>הפלגה חדשה</span>
+                            <PirateFlagIcon size={32} />
+                        </span>
                     </PlankButton>
                     <PlankButton
                         onClick={onMap}
