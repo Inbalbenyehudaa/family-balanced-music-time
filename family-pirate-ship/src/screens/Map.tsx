@@ -70,7 +70,7 @@ export function ScreenMap({
                 <div className="relative z-[1] flex flex-row-reverse items-center justify-between">
                     <button
                         onClick={() => setDrawerOpen(!drawerOpen)}
-                        className="cursor-pointer rounded-2xl border-2 border-[rgba(93,63,42,0.4)] bg-sand-cream px-[14px] py-2 font-display text-sm font-bold text-text-primary"
+                        className="flex min-h-11 cursor-pointer items-center rounded-2xl border-2 border-[rgba(93,63,42,0.4)] bg-sand-cream px-[14px] py-2 font-display text-sm font-bold text-text-primary"
                         style={{ boxShadow: '0 3px 0 rgba(93,63,42,0.18)' }}
                     >
                         📜 הסטטיסטיקה

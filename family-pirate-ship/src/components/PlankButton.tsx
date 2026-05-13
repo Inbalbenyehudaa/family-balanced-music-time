@@ -6,7 +6,7 @@ export type PlankSize = 'sm' | 'md' | 'lg';
 const SIZE_CLASSES: Record<PlankSize, string> = {
     lg: 'h-16 px-6 py-[18px] text-[22px]',
     md: 'h-[52px] px-[22px] py-[14px] text-[19px]',
-    sm: 'h-10 px-4 py-[10px] text-base',
+    sm: 'h-14 px-5 py-3 text-base',
 };
 
 const VARIANT_CLASS: Record<PlankVariant, string> = {
