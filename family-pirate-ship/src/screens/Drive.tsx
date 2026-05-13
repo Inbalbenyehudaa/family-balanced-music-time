@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import type { Pirate } from '../types';
-import { SpyglassIcon, PirateAvatar, FlagBadge } from '../components/Art';
+import { SpyglassIcon, PirateAvatar, FlagBadge, AnchorIcon } from '../components/Art';
 import { ScreenBackground } from '../components/ScreenBackground';
 import { OfflineIndicator } from '../components/OfflineIndicator';
 import { hexToRgb, blendColor } from '../utils';
@@ -169,7 +169,7 @@ export function ScreenDrive({
                 {/* End voyage — footer; in RTL-column the button sits on the trailing/left side */}
                 <div className="flex justify-start pt-2">
                     <div
-                        className="relative h-14 w-[130px] cursor-pointer select-none overflow-hidden rounded-[14px] touch-none"
+                        className="relative h-14 w-[150px] cursor-pointer select-none overflow-hidden rounded-[14px] touch-none"
                         style={{
                             background: `
               linear-gradient(180deg, rgba(255,255,255,0.2), rgba(0,0,0,0.05)),
@@ -185,16 +185,24 @@ export function ScreenDrive({
                         onTouchCancel={cancelHold}
                     >
                         <div
-                            className="absolute inset-y-0 left-0 bg-wood-deep transition-[width] duration-[50ms]"
-                            style={{ width: `${holdProgress * 100}%` }}
+                            className="absolute inset-y-0 left-0 transition-[width] duration-[50ms]"
+                            style={{
+                                width: `${holdProgress * 100}%`,
+                                background:
+                                    'linear-gradient(90deg, var(--action-danger) 0%, var(--wood-deep) 100%)',
+                            }}
                         />
                         <div
-                            className="absolute inset-0 flex items-center justify-center font-body text-base font-semibold transition-colors duration-100"
+                            className="absolute inset-0 flex flex-row-reverse items-center justify-center gap-2 font-body text-base font-semibold transition-colors duration-100"
                             style={{
                                 color: holdProgress > 0.4 ? '#FBF1DC' : 'var(--text-primary)',
                             }}
                         >
-                            סיימו הפלגה
+                            <span>סיימו הפלגה</span>
+                            <AnchorIcon
+                                size={22}
+                                color={holdProgress > 0.4 ? '#FBF1DC' : '#5D3F2A'}
+                            />
                         </div>
                         <div
                             className="absolute -left-[2px] top-[10px] h-9 w-[6px] rounded-[3px] opacity-70"

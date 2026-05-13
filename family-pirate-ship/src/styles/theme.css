@@ -214,10 +214,7 @@ body {
     color: #fff;
 }
 .btn-plank.safe {
-    background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.06)),
-        repeating-linear-gradient(180deg, rgba(20, 60, 55, 0.1) 0 1px, transparent 1px 8px),
-        var(--action-safe);
+    background: var(--action-safe);
     color: #fff;
 }
 
@@ -258,6 +255,15 @@ body {
     }
     50% {
         transform: translateY(-3px) rotate(0.6deg);
+    }
+}
+@keyframes anchorDrop {
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(5px);
     }
 }
 @keyframes drift {
