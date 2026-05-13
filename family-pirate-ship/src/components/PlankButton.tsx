@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactNode } from 'react';
 
-export type PlankVariant = 'wood' | 'sand' | 'cream';
+export type PlankVariant = 'wood' | 'sand' | 'cream' | 'danger' | 'safe';
 export type PlankSize = 'sm' | 'md' | 'lg';
 
 const SIZE_CLASSES: Record<PlankSize, string> = {
@@ -13,6 +13,8 @@ const VARIANT_CLASS: Record<PlankVariant, string> = {
     wood: '',
     sand: 'sand',
     cream: 'cream',
+    danger: 'danger',
+    safe: 'safe',
 };
 
 export function PlankButton({

@@ -80,7 +80,7 @@ export function ScreenHome({
                         size="md"
                         style={{ height: 56 }}
                     >
-                        🗺️ מפת האוצר
+                        <MapIcon size={20} />מפת האוצר
                     </PlankButton>
                 </div>
             </div>

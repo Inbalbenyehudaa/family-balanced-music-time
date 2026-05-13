@@ -34,6 +34,15 @@
     --text-secondary: #5d5249;
     --surface-card: #fbf1dc;
 
+    /* Semantic action colors.
+       --action-danger aliases --treasure-red so destructive-action styling
+       stays in lockstep with the pirate palette.
+       --action-safe is declared as its own hex (currently matches --flag-mom
+       teal) so identity-color changes to mom's flag don't accidentally
+       re-skin every safe CTA. */
+    --action-danger: var(--treasure-red);
+    --action-safe: #2a9d8f;
+
     --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro', system-ui, sans-serif;
     --font-body: -apple-system, BlinkMacSystemFont, 'SF Pro', system-ui, sans-serif;
     --font-map: -apple-system, BlinkMacSystemFont, 'SF Pro', system-ui, sans-serif;
@@ -159,6 +168,10 @@ body {
     border: none;
     cursor: pointer;
     position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     background:
         linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(0, 0, 0, 0.06)),
         repeating-linear-gradient(180deg, rgba(93, 63, 42, 0.1) 0 1px, transparent 1px 8px),
@@ -192,6 +205,20 @@ body {
     background:
         linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(0, 0, 0, 0.04)),
         var(--sand-cream);
+}
+.btn-plank.danger {
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(0, 0, 0, 0.08)),
+        repeating-linear-gradient(180deg, rgba(90, 25, 20, 0.12) 0 1px, transparent 1px 8px),
+        var(--action-danger);
+    color: #fff;
+}
+.btn-plank.safe {
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(0, 0, 0, 0.06)),
+        repeating-linear-gradient(180deg, rgba(20, 60, 55, 0.1) 0 1px, transparent 1px 8px),
+        var(--action-safe);
+    color: #fff;
 }
 
 /* Pulse glow keyframes */
