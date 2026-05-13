@@ -886,6 +886,114 @@ export function AnchorIcon({ size = 22, color = '#5D3F2A' }: { size?: number; co
     );
 }
 
+export function SailingShipIcon({
+    size = 64,
+    sail = '#FBF1DC',
+    hull = '#5D3F2A',
+    accent = '#C84B3B',
+}: {
+    size?: number;
+    sail?: string;
+    hull?: string;
+    accent?: string;
+}) {
+    return (
+        <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden="true">
+            {/* Mast */}
+            <line x1="32" y1="10" x2="32" y2="44" stroke={hull} strokeWidth="2.5" strokeLinecap="round" />
+            {/* Pennant on top of mast */}
+            <path d="M32 10 L40 13 L32 16 Z" fill={accent} />
+            {/* Main sail — billowing right (wind from behind) */}
+            <path
+                d="M32 14 Q50 22 48 40 L32 40 Z"
+                fill={sail}
+                stroke={hull}
+                strokeWidth="1.4"
+                strokeLinejoin="round"
+            />
+            {/* Foresail — smaller, billowing left */}
+            <path
+                d="M32 18 Q18 26 20 40 L32 40 Z"
+                fill={sail}
+                stroke={hull}
+                strokeWidth="1.4"
+                strokeLinejoin="round"
+                opacity="0.92"
+            />
+            {/* Hull — curved boat */}
+            <path
+                d="M10 42 Q12 52 18 54 L46 54 Q52 52 54 42 Z"
+                fill={hull}
+                stroke="#3A2516"
+                strokeWidth="1"
+                strokeLinejoin="round"
+            />
+            {/* Hull plank line */}
+            <path
+                d="M14 46 Q32 49 50 46"
+                stroke="#A87B5A"
+                strokeWidth="1"
+                fill="none"
+                strokeLinecap="round"
+            />
+            {/* Water ripples below */}
+            <path
+                d="M6 58 Q14 56 22 58 T38 58 T54 58 T62 58"
+                stroke="#5FA8C7"
+                strokeWidth="1.6"
+                fill="none"
+                strokeLinecap="round"
+                opacity="0.7"
+            />
+        </svg>
+    );
+}
+
+export function SunIcon({ size = 64, color = '#F4B942' }: { size?: number; color?: string }) {
+    const rays = Array.from({ length: 8 }, (_, i) => i * 45);
+    return (
+        <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden="true">
+            {rays.map((deg) => (
+                <line
+                    key={deg}
+                    x1="32"
+                    y1="6"
+                    x2="32"
+                    y2="14"
+                    stroke={color}
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                    transform={`rotate(${deg} 32 32)`}
+                />
+            ))}
+            <circle cx="32" cy="32" r="14" fill={color} />
+            <circle cx="32" cy="32" r="14" fill="none" stroke="#C8941F" strokeWidth="1.5" />
+        </svg>
+    );
+}
+
+export function WaveIcon({ size = 64, color = '#5FA8C7' }: { size?: number; color?: string }) {
+    return (
+        <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+            <path
+                d="M2 13 Q6 9 10 13 T18 13 T22 13"
+                stroke={color}
+                strokeWidth="2"
+                fill="none"
+                strokeLinecap="round"
+            />
+            <path
+                d="M2 17 Q6 13 10 17 T18 17 T22 17"
+                stroke={color}
+                strokeWidth="2"
+                fill="none"
+                strokeLinecap="round"
+                opacity="0.6"
+            />
+        </svg>
+    );
+}
+
 export function LockIcon({ size = 22, color = '#5D3F2A' }: { size?: number; color?: string }) {
     return (
         <svg width={size} height={size} viewBox="0 0 24 24">

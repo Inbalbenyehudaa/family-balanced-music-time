@@ -1,6 +1,13 @@
 import type { ReactNode } from 'react';
 import type { Pirate, Tier } from '../types';
-import { PirateShip, PirateAvatar, FrostedBanner } from '../components/Art';
+import {
+    PirateShip,
+    PirateAvatar,
+    FrostedBanner,
+    AnchorIcon,
+    SailingShipIcon,
+    WaveIcon,
+} from '../components/Art';
 import { ScreenBackground } from '../components/ScreenBackground';
 import { computeTier } from '../utils';
 
@@ -24,50 +31,16 @@ export function ScreenSpyglass({
         return Math.max(1, Math.round((m / max) * 7));
     });
 
-    const harborIcon = (
-        <svg
-            width="22"
-            height="18"
-            viewBox="0 0 28 22"
-            className="ms-1 inline-block align-middle"
-            aria-hidden="true"
-        >
-            <path
-                d="M1 18 Q5 16 9 18 T17 18 T27 18"
-                stroke="#3a6b7a"
-                strokeWidth="1.4"
-                fill="none"
-                strokeLinecap="round"
-            />
-            <rect x="2" y="11" width="14" height="3" fill="#5D3F2A" />
-            <rect x="3.5" y="14" width="1.6" height="4" fill="#5D3F2A" />
-            <rect x="13" y="14" width="1.6" height="4" fill="#5D3F2A" />
-            <path
-                d="M16 14 L26 14 L24 17 L18 17 Z"
-                fill="#A87B5A"
-                stroke="#5D3F2A"
-                strokeWidth="0.8"
-            />
-            <rect x="20.4" y="7" width="0.9" height="7" fill="#5D3F2A" />
-            <path d="M21.3 7 L24.5 11 L21.3 11 Z" fill="#FBF1DC" />
-            <path d="M14 13 Q15.5 12.5 17 13.5" stroke="#5D3F2A" strokeWidth="0.7" fill="none" />
-        </svg>
-    );
-
-    const bannerMap: Record<Tier, { tier: Tier; text: ReactNode }> = {
-        fair: { tier: 'fair', text: 'רוח גבית! זמן האזנה שווה ⛵' },
-        coastal: { tier: 'coastal', text: 'הספינה קצת נטויה... אזנו את הזמן 🌊' },
-        harbor: {
-            tier: 'harbor',
-            text: (
-                <span className="inline-flex items-center gap-[6px]">
-                    <span>מישהו משתלט, אתם לא זזים</span>
-                    {harborIcon}
-                </span>
-            ),
-        },
+    const tierIcon: Record<Tier, ReactNode> = {
+        fair: <SailingShipIcon size={64} />,
+        coastal: <WaveIcon size={64} />,
+        harbor: <AnchorIcon size={64} color="#8C7A6B" />,
     };
-    const banner = bannerMap[tier];
+    const tierText: Record<Tier, string> = {
+        fair: 'רוח גבית! זמן האזנה שווה',
+        coastal: 'הספינה קצת נטויה... אזנו את הזמן',
+        harbor: 'מישהו משתלט, אתם לא זזים',
+    };
 
     const activeIdx = [0, 1, 2].filter((i) => active[i]);
     const ltrIdx = [...activeIdx].reverse();
@@ -102,15 +75,22 @@ export function ScreenSpyglass({
                     <div />
                 </div>
 
-                {/* Tier banner */}
+                {/* Tier banner — icon leads, Hebrew text drops to a secondary line. */}
                 <div className="mt-6 px-6">
-                    <div style={{ width: 'min(260px, 75vw)', marginInline: 'auto' }}>
-                        <FrostedBanner tier={banner.tier}>{banner.text}</FrostedBanner>
+                    <div style={{ width: 'min(280px, 80vw)', marginInline: 'auto' }}>
+                        <FrostedBanner tier={tier}>
+                            <span className="flex flex-col items-center gap-2 py-1">
+                                {tierIcon[tier]}
+                                <span className="text-center text-[13px] leading-tight">
+                                    {tierText[tier]}
+                                </span>
+                            </span>
+                        </FrostedBanner>
                     </div>
                 </div>
 
-                {/* Ship scene — centered in remaining space */}
-                <div className="relative flex flex-1 items-center justify-center py-8">
+                {/* Ship scene — bottom-anchored so the hull rides on the water foreground. */}
+                <div className="relative flex flex-1 items-end justify-center pt-4 pb-0">
                     <div className="animate-fade-only relative" style={{ width: shipW }}>
                         <PirateShip
                             width={shipW}
