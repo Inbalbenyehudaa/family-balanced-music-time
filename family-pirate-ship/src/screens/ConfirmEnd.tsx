@@ -1,4 +1,5 @@
 import { PlankButton } from '../components/PlankButton';
+import { AnchorIcon, CompassIcon } from '../components/Art';
 
 export function ConfirmEnd({ onYes, onNo }: { onYes: () => void; onNo: () => void }) {
     return (
@@ -11,16 +12,37 @@ export function ConfirmEnd({ onYes, onNo }: { onYes: () => void; onNo: () => voi
                     boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
                 }}
             >
-                <div className="mb-[10px] text-[40px]">⚓</div>
+                <div
+                    className="mb-[10px] flex justify-center"
+                    style={{ animation: 'anchorDrop 2.5s ease-in-out infinite' }}
+                >
+                    <AnchorIcon size={56} color="#5D3F2A" />
+                </div>
                 <h3 className="mx-0 mb-[18px] mt-0 font-display text-2xl font-bold">
                     לסיים את ההפלגה?
                 </h3>
                 <div className="flex flex-row-reverse gap-[10px]">
-                    <PlankButton onClick={onYes} size="md">
-                        כן
+                    <PlankButton
+                        onClick={onYes}
+                        variant="safe"
+                        size="lg"
+                        style={{ height: 88 }}
+                    >
+                        <div className="flex flex-col items-center justify-center gap-1">
+                            <AnchorIcon size={28} color="#FBF1DC" />
+                            <span>כן</span>
+                        </div>
                     </PlankButton>
-                    <PlankButton onClick={onNo} variant="cream" size="md">
-                        לא
+                    <PlankButton
+                        onClick={onNo}
+                        variant="cream"
+                        size="lg"
+                        style={{ height: 88 }}
+                    >
+                        <div className="flex flex-col items-center justify-center gap-1">
+                            <CompassIcon size={28} />
+                            <span>לא</span>
+                        </div>
                     </PlankButton>
                 </div>
             </div>
