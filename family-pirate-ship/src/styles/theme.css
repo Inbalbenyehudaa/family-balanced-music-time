@@ -161,6 +161,27 @@ body {
         0 1px 0 rgba(255, 255, 255, 0.5) inset;
 }
 
+/* Universal tap feedback — apply to any non-PlankButton tappable surface
+   (icon buttons, chips) so every interactive element in the app responds
+   to touch with a brief scale-down. */
+.tap-feedback {
+    transition: transform 100ms ease-out;
+}
+.tap-feedback:active {
+    transform: scale(0.94);
+}
+
+/* Map island buttons already use an inline transform for absolute placement
+   (translate + rotate). Scaling the button itself would clobber that, so
+   we scale the inner content wrapper instead. The :active state on the
+   parent button cascades visually to the child via this descendant rule. */
+.island-tap > .island-tap-inner {
+    transition: transform 100ms ease-out;
+}
+.island-tap:active > .island-tap-inner {
+    transform: scale(0.92);
+}
+
 /* Painted button */
 .btn-plank {
     font-family: var(--font-display);

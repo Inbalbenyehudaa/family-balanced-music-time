@@ -125,8 +125,11 @@ export function ScreenMap({
 
                 {drawerOpen && (
                     <div
-                        className="tex-grain absolute right-6 top-[72px] z-[2] w-[220px] animate-fade-up rounded-2xl border-2 border-[rgba(93,63,42,0.4)] bg-sand-cream p-[14px] font-body"
-                        style={{ boxShadow: '0 6px 14px rgba(93,63,42,0.3)' }}
+                        className="tex-grain right-6 top-[72px] z-[2] w-[220px] animate-fade-up rounded-2xl border-2 border-[rgba(93,63,42,0.4)] bg-sand-cream p-[14px] font-body"
+                        style={{
+                            position: 'absolute',
+                            boxShadow: '0 6px 14px rgba(93,63,42,0.3)',
+                        }}
                     >
                         <Stat label="איים שהתגלו" value={unlockedIds.length} />
                         <Stat
@@ -145,7 +148,7 @@ export function ScreenMap({
                             <button
                                 key={isl.id}
                                 onClick={() => (unlocked ? onIslandTap(isl) : null)}
-                                className={`absolute border-none bg-transparent p-0 ${
+                                className={`island-tap absolute border-none bg-transparent p-0 ${
                                     unlocked ? 'cursor-pointer' : 'cursor-default'
                                 }`}
                                 style={{
@@ -155,7 +158,7 @@ export function ScreenMap({
                                 }}
                             >
                                 {unlocked ? (
-                                    <div className="relative h-16 w-16 animate-soft-pulse">
+                                    <div className="island-tap-inner relative h-16 w-16 animate-soft-pulse">
                                         <div
                                             className="h-16 w-16 overflow-hidden rounded-full bg-[#C5E0E8]"
                                             style={{ boxShadow: '0 2px 4px rgba(93,63,42,0.3)' }}

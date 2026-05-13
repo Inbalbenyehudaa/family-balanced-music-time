@@ -91,7 +91,7 @@ export function ScreenSpyglass({
                     <button
                         onClick={onClose}
                         aria-label="סגור"
-                        className="flex h-14 w-14 cursor-pointer items-center justify-center rounded-full border-none bg-[rgba(251,241,220,0.9)] font-body text-[22px] font-bold text-wood-deep"
+                        className="tap-feedback flex h-14 w-14 cursor-pointer items-center justify-center rounded-full border-none bg-[rgba(251,241,220,0.9)] font-body text-[22px] font-bold text-wood-deep"
                         style={{
                             boxShadow:
                                 '0 2px 0 rgba(93,63,42,0.35), 0 4px 12px rgba(0,0,0,0.18)',
