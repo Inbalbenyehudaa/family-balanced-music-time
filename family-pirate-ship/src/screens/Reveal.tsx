@@ -7,6 +7,7 @@ import {
     IslandIllustration,
     CoastalFindIcon,
     AnchorIcon,
+    WaveIcon,
 } from '../components/Art';
 import { PlankButton } from '../components/PlankButton';
 import { ScreenBackground } from '../components/ScreenBackground';
@@ -18,15 +19,6 @@ function TinyIslandIcon({ size = 24 }: { size?: number }) {
             <circle cx="12" cy="12" r="11" fill="#5FA8C7" opacity="0.35" />
             <path d="M4 16 Q12 9 20 16 L20 18 L4 18 Z" fill="#F0D49B" />
             <path d="M13 14 L13 8 M13 8 Q11 8.5 10 10 M13 8 Q15 8.5 16 10" stroke="#3F7A3F" strokeWidth="1.4" strokeLinecap="round" fill="none" />
-        </svg>
-    );
-}
-
-function WaveIcon({ size = 24 }: { size?: number }) {
-    return (
-        <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M2 13 Q6 9 10 13 T18 13 T22 13" stroke="#5FA8C7" strokeWidth="2" fill="none" strokeLinecap="round" />
-            <path d="M2 17 Q6 13 10 17 T18 17 T22 17" stroke="#5FA8C7" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.6" />
         </svg>
     );
 }
