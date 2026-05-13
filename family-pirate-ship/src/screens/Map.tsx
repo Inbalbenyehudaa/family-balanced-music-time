@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import type { Island, Drive } from '../types';
-import { CompassIcon, ISLAND_IMAGES, PirateShip } from '../components/Art';
+import { CompassIcon, ISLAND_IMAGES, LockIcon, PirateShip } from '../components/Art';
 import { PlankButton } from '../components/PlankButton';
 import { ScreenBackground } from '../components/ScreenBackground';
 import { ISLANDS } from '../data';
@@ -18,31 +18,76 @@ export function ScreenMap({
 }) {
     const [drawerOpen, setDrawerOpen] = useState(false);
 
-    const COLS = 3;
-    const ROWS = 5;
-    const FIELD_LEFT = 10;
-    const FIELD_TOP = 14;
-    const FIELD_WIDTH = 78;
-    const FIELD_HEIGHT = 72;
+    // Measure the island-field container so placement is responsive.
+    // We position in pixels (not %) because each island is a fixed-px
+    // element — scaling % positions across screen widths makes labels
+    // clip the edge and overlap the harbor on smaller phones.
+    const fieldRef = useRef<HTMLDivElement>(null);
+    const [fieldSize, setFieldSize] = useState({ width: 0, height: 0 });
+    useLayoutEffect(() => {
+        const el = fieldRef.current;
+        if (!el) return;
+        const update = () =>
+            setFieldSize({ width: el.clientWidth, height: el.clientHeight });
+        update();
+        const ro = new ResizeObserver(update);
+        ro.observe(el);
+        return () => ro.disconnect();
+    }, []);
 
-    const positions = ISLANDS.map((isl, i) => {
-        const col = i % COLS;
-        const row = Math.floor(i / COLS);
-        const cellW = FIELD_WIDTH / COLS;
-        const cellH = FIELD_HEIGHT / ROWS;
-        const seed =
-            isl.id.charCodeAt(0) + isl.id.charCodeAt(isl.id.length - 1) * 7 + i * 13;
-        const jitterX = ((seed % 11) - 5) * 0.9;
-        const jitterY = (((seed * 3) % 11) - 5) * 0.7;
-        const rowOffset = row % 2 === 1 ? cellW * 0.35 : 0;
-        const rotation = ((seed * 7) % 11) - 5;
-        return {
-            ...isl,
-            x: FIELD_LEFT + col * cellW + cellW / 2 + jitterX + rowOffset,
-            y: FIELD_TOP + row * cellH + cellH / 2 + jitterY,
-            rotation,
-        };
-    });
+    // Layout constants — pixel-based, derived from the actual island visuals:
+    // ISLAND_RADIUS  half of h-16 w-16 unlocked island
+    // LABEL_BELOW    name label sits ~16px below the circle
+    // ROT_PAD        circles rotate ±5deg, leave a small buffer
+    // HARBOR_W/H     reserved bottom-right zone for home harbor + label
+    // MIN_DIST       minimum center-to-center spacing between any two islands
+    const ISLAND_RADIUS = 32;
+    const LABEL_BELOW = 18;
+    const ROT_PAD = 6;
+    const HARBOR_W = 96;
+    const HARBOR_H = 100;
+    const MIN_DIST = 78;
+
+    const seedFor = (s: string, salt: number) => {
+        let h = 2166136261 ^ salt;
+        for (let i = 0; i < s.length; i++) {
+            h = Math.imul(h ^ s.charCodeAt(i), 16777619);
+        }
+        return (h >>> 0) / 4294967296;
+    };
+
+    const positions =
+        fieldSize.width > 0 && fieldSize.height > 0
+            ? ISLANDS.reduce<Array<Island & { x: number; y: number; rotation: number }>>(
+                  (acc, isl) => {
+                      const minX = ISLAND_RADIUS + ROT_PAD;
+                      const maxX = fieldSize.width - ISLAND_RADIUS - ROT_PAD;
+                      const minY = ISLAND_RADIUS + ROT_PAD;
+                      const maxY =
+                          fieldSize.height - ISLAND_RADIUS - LABEL_BELOW - ROT_PAD;
+                      const harborMinX = fieldSize.width - HARBOR_W;
+                      const harborMinY = fieldSize.height - HARBOR_H;
+                      // If the screen is so small the bounds cross, skip — render no islands rather than overflow.
+                      if (maxX <= minX || maxY <= minY) return acc;
+                      for (let attempt = 0; attempt < 300; attempt++) {
+                          const x = minX + seedFor(isl.id, attempt * 2 + 1) * (maxX - minX);
+                          const y = minY + seedFor(isl.id, attempt * 2 + 2) * (maxY - minY);
+                          // Reserve the bottom-right harbor zone.
+                          if (x > harborMinX && y > harborMinY) continue;
+                          const collides = acc.some(
+                              (p) => Math.hypot(x - p.x, y - p.y) < MIN_DIST,
+                          );
+                          if (!collides || attempt === 299) {
+                              const rotSeed = seedFor(isl.id, 9999);
+                              acc.push({ ...isl, x, y, rotation: rotSeed * 10 - 5 });
+                              return acc;
+                          }
+                      }
+                      return acc;
+                  },
+                  [],
+              )
+            : [];
 
     return (
         <ScreenBackground variant="map">
@@ -92,8 +137,8 @@ export function ScreenMap({
                     </div>
                 )}
 
-                {/* Island field — flexible, uses % for positioning so it scales */}
-                <div className="relative flex-1">
+                {/* Island field — measured in pixels so placement is responsive. */}
+                <div ref={fieldRef} className="relative flex-1">
                     {positions.map((isl) => {
                         const unlocked = unlockedIds.includes(isl.id);
                         return (
@@ -104,8 +149,8 @@ export function ScreenMap({
                                     unlocked ? 'cursor-pointer' : 'cursor-default'
                                 }`}
                                 style={{
-                                    left: `${isl.x}%`,
-                                    top: `${isl.y}%`,
+                                    left: `${isl.x}px`,
+                                    top: `${isl.y}px`,
                                     transform: `translate(-50%, -50%) rotate(${isl.rotation}deg)`,
                                 }}
                             >
@@ -126,10 +171,18 @@ export function ScreenMap({
                                         </div>
                                     </div>
                                 ) : (
-                                    <div
-                                        className="h-14 w-14 rounded-full border-[1.5px] border-dashed border-[rgba(93,63,42,0.4)] bg-[rgba(197,224,232,0.85)]"
-                                        style={{ filter: 'blur(1px)' }}
-                                    />
+                                    <div className="relative h-14 w-14">
+                                        <div
+                                            className="absolute inset-0 rounded-full border-[1.5px] border-dashed border-[rgba(93,63,42,0.4)] bg-[rgba(197,224,232,0.85)]"
+                                            style={{ filter: 'blur(1px)' }}
+                                        />
+                                        <div
+                                            className="absolute inset-0 flex items-center justify-center"
+                                            style={{ opacity: 0.7 }}
+                                        >
+                                            <LockIcon size={22} />
+                                        </div>
+                                    </div>
                                 )}
                             </button>
                         );
