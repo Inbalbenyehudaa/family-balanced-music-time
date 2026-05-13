@@ -111,7 +111,9 @@ export function DriveRoute() {
     const currentIdx = useDrivesStore((s) => s.currentIdx);
     const setCurrentIdx = useDrivesStore((s) => s.setCurrentIdx);
     const { demoFastClock } = useDevTweaks();
-    const [showConfirm, setShowConfirm] = useState(false);
+    // Confirm-end flow: idle → flashing (brief black gate) → confirming (modal up).
+    // The pre-modal dim signals "this is irreversible" before the modal materializes.
+    const [confirmPhase, setConfirmPhase] = useState<'idle' | 'flashing' | 'confirming'>('idle');
 
     // Tick interval — replaces the effect that used to live in App.tsx.
     useEffect(() => {
@@ -121,6 +123,12 @@ export function DriveRoute() {
         }, 1000);
         return () => clearInterval(id);
     }, [demoFastClock]);
+
+    useEffect(() => {
+        if (confirmPhase !== 'flashing') return;
+        const id = setTimeout(() => setConfirmPhase('confirming'), 180);
+        return () => clearTimeout(id);
+    }, [confirmPhase]);
 
     const elapsed = minutes.reduce((a, b) => a + b, 0);
 
@@ -134,16 +142,24 @@ export function DriveRoute() {
                 setCurrentIdx={setCurrentIdx}
                 elapsed={elapsed}
                 onSpyglass={() => nav('/drive/spyglass')}
-                onEndVoyage={() => setShowConfirm(true)}
+                onEndVoyage={() => setConfirmPhase('flashing')}
             />
-            {showConfirm && (
+            {confirmPhase !== 'idle' && (
+                <div
+                    className="pointer-events-none fixed inset-0 z-[105] bg-black"
+                    style={{
+                        animation: 'fadeBlack 180ms ease-out forwards',
+                    }}
+                />
+            )}
+            {confirmPhase === 'confirming' && (
                 <ConfirmEnd
                     onYes={() => {
-                        setShowConfirm(false);
+                        setConfirmPhase('idle');
                         useDrivesStore.getState().endDrive(pirates);
                         nav('/drive/reveal');
                     }}
-                    onNo={() => setShowConfirm(false)}
+                    onNo={() => setConfirmPhase('idle')}
                 />
             )}
         </>
