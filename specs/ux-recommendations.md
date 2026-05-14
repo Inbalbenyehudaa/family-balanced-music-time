@@ -171,7 +171,7 @@ Preserve functional animations (iris-in, fadeUp for entrance, splash for modals)
 **Why this helps a 4.5-year-old.** The child's mental model is "I'm the pirate, I make the ship go." If the ship and the CTA are visually unified, the action is obvious. If they're separate layers, the child has to deduce a connection that isn't shown.
 
 #### B1b · Map chip text — "X איים" not readable without numbers context
-**Priority: P2**
+**Priority: P2 — REJECTED 2026-05-14.** The chip is parent-aimed — it's a small status counter in the top row. The kid's actual map entry point is the "מפת האוצר" PlankButton below. Replacing the chip's text with island thumbnails would either lose the "tap-for-map" affordance (pure thumbs) or clutter a small surface (thumbs + icon + count). Not changing.
 
 **Problem.** `Home.tsx:48` — the map chip renders `<MapIcon size={20} /> {islandsCount} איים`. The number is legible, but "איים" (islands) is a word. At 0 islands (new user), the chip reads "0 איים" — an Arabic numeral the child can read, but paired with a word they can't.
 
@@ -534,7 +534,7 @@ No design deliverable needed until visual P0/P1 items are resolved.
 | C3 | Reveal | Harbor tier | P1 | Emotional warmth on no-reward outcome |
 | C4 | Drive→ConfirmEnd | End flow | P1 | Visual escalation (iris-out or black flash) before ConfirmEnd modal |
 | C5 | Drive | First-session hint | P1 | Visual-only hold affordance cue on first session |
-| B1b | Home | Map chip | P2 | Replace "X איים" text with island thumbnail count |
+| B1b | Home | Map chip | P2 — rejected | Chip is parent-aimed; kid's map entry is the "מפת האוצר" PlankButton below |
 | B1c | Home | Settings button | P1 | Raise tap target to 56px |
 | B2b | Drive | "מאזין/ה עכשיו" | P2 — rejected | Label aids parent navigation; not removing |
 | A5 | Global | Hover + hold hint | P2 | Add hover state to PlankButton; pulse hint on hold-button at rest |
