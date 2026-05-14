@@ -178,7 +178,7 @@ Preserve functional animations (iris-in, fadeUp for entrance, splash for modals)
 **Recommendation.** Replace the text with small `IslandIllustration` thumbnails up to a count of 5, then "5+" with a map scroll icon. Zero-state: a map scroll with a question mark. The numeral and thumbnail together communicate "you have this many of these" without the word.
 
 #### B1c · Settings button is 44px — below the 56px floor for a kid-accessible surface
-**Priority: P2 — demoted 2026-05-13.** Parent-facing surface; a kid mis-tapping it doesn't break anything irreversible. The 56px floor is real for kid-path CTAs, less critical here.
+**Priority: P2 — DROPPED 2026-05-14.** (Demoted from P1 on 2026-05-13.) Same reasoning held in p2-polish-pass: parent-facing surface, no irreversible mis-tap risk. 56px floor stays a kid-path rule. Not pursuing.
 
 **Problem.** `Home.tsx:30` — the settings compass button is `h-11 w-11` (44px). It's in the top corner, mostly parent-facing. But a 4.5-year-old will tap at anything interesting, and a compass icon is attractive.
 
@@ -326,7 +326,7 @@ The island illustration (Reveal.tsx:195) and coastal find icon (Reveal.tsx:209) 
 5. **Save button** `Reveal.tsx:222` — "שמור והתחל ⚓": move the anchor from trailing emoji to leading `AnchorIcon` SVG. Shorten the label or split into icon + abbreviated text ("⚓ קדימה").
 
 #### B5b · Harbor outcome is a flat letdown — no ambient visual warmth
-**Priority: P2 — demoted 2026-05-13.** B5a (icon-led tier banner) already shipped, so the kid sees a clear lowered-anchor signal in the harbor outcome. The full Reveal animation (fog clear, ship reveal) plays regardless of tier — the child gets the climactic experience either way. Adding a parrot/sunset visual is polish, not a missing-information fix.
+**Priority: P2 — DROPPED 2026-05-14.** (Demoted from P1 on 2026-05-13.) Reasoning held: B5a's anchor icon carries the harbor outcome's tone; the cinematic Reveal plays for all tiers. A warm-visual addition is design philosophy, not a fix for missing information. Not pursuing.
 
 See B5a recommendation 4. The app's emotional promise is "the voyage happened, the listening happened, you tried." Even the no-reward outcome should land with warmth. The harbor-tier screen currently communicates failure through a text sentence and silence. For a 4-year-old, that's a sad ending to something they were excited about.
 
@@ -473,7 +473,7 @@ This costs minimal performance (one CSS animation each) and significantly elevat
 ---
 
 ### C3 · Harbor tier is the only emotionally flat outcome — needs warmth
-**Priority: P2 — demoted 2026-05-13.** Same rationale as B5b: the cinematic Reveal sequence plays for all three tiers, and B5a's anchor icon now carries the harbor outcome's tone. The "warm visual" idea is good design philosophy but the current state is functional, not failing.
+**Priority: P2 — DROPPED 2026-05-14.** (Demoted from P1 on 2026-05-13.) Same call as B5b. Not pursuing.
 
 Covered in B5a and B5b, but worth naming as a standalone principle: **every session endpoint should feel warm, regardless of outcome.** The "no reward" state at Harbor tier is a narrative choice, not a technical one — the app's philosophy is "balance beats winning," not "failure is punishing." The visual design of the Harbor outcome should reflect that philosophy. A smiling parrot on a dock, a ship tucked safely into harbor at sunset, or even the family's pirate avatars waving from the shore — any of these communicates "you sailed, you came home, try for more sharing next time" without words.
 
@@ -489,7 +489,7 @@ Top children's apps use a consistent visual register for irreversible actions: a
 ---
 
 ### C5 · No first-session guidance — the hold mechanic and spyglass are invisible on first use
-**Priority: P2 — demoted 2026-05-13.** The hold button now leads with an animated AnchorIcon and a colored progress fill (B2a, shipped). The spyglass already gets a glow pulse after 5 minutes (Drive.tsx:36,64). A 4.5-year-old learns by tapping, not by reading hint bubbles — instructional UI is a heavier intervention than the affordances already in place warrant.
+**Priority: P2 — DROPPED 2026-05-14.** (Demoted from P1 on 2026-05-13.) Reasoning held: the affordances already in place (anchor icon + colored progress fill on the hold button, spyglass glow pulse) carry the learning path without instructional UI. A 4.5-year-old learns by tapping, not by reading hint bubbles. Not pursuing.
 
 A brand-new user (child or parent helping the child) sees Drive and has:
 - Three tappable pirate buttons — intuitive (big, colorful, labeled with familiar photos)
@@ -528,18 +528,18 @@ No design deliverable needed until visual P0/P1 items are resolved.
 | A1 | Global | Web fonts | P1 | Remove `!important`, wire Heebo + Suez One to font tokens |
 | B4a | Spyglass | Tier banner | P1 | Lead with large tier icon, text secondary |
 | B4b | Spyglass | Close button | P1 | Raise to 56px, replace "✕" with SVG |
-| B5b | Reveal | Harbor outcome | P1 | Add warm ambient visual for no-reward state |
+| B5b | Reveal | Harbor outcome | P2 — dropped | B5a anchor icon carries harbor tone; cinematic plays for all tiers |
 | B6a | Map | Locked islands | P1 | Add "?" or lock SVG overlay to locked island circles |
 | C1 | Global | Press feedback | P1 | Add `:active` state to all tappable surfaces (not just PlankButton) |
-| C3 | Reveal | Harbor tier | P1 | Emotional warmth on no-reward outcome |
+| C3 | Reveal | Harbor tier | P2 — dropped | Same call as B5b |
 | C4 | Drive→ConfirmEnd | End flow | P1 | Visual escalation (iris-out or black flash) before ConfirmEnd modal |
-| C5 | Drive | First-session hint | P1 | Visual-only hold affordance cue on first session |
+| C5 | Drive | First-session hint | P2 — dropped | Anchor icon + progress fill + spyglass glow already carry the learning path |
 | B1b | Home | Map chip | P2 — rejected | Chip is parent-aimed; kid's map entry is the "מפת האוצר" PlankButton below |
-| B1c | Home | Settings button | P1 | Raise tap target to 56px |
+| B1c | Home | Settings button | P2 — dropped | Parent-facing surface; no irreversible mis-tap risk |
 | B2b | Drive | "מאזין/ה עכשיו" | P2 — rejected | Label aids parent navigation; not removing |
 | A5 | Global | Hover + hold hint | P2 | Add hover state to PlankButton; pulse hint on hold-button at rest |
 | A6 | Global | Reduced motion | P2 — demoted | Current motion is engaging and on-budget; not pursuing without specific user-reported friction |
-| A7 | Global | Focus states | P2 | Add `:focus-visible` outline for keyboard/a11y |
+| A7 | Global | Focus states | P2 — dropped | Touch-only family app; keyboard a11y not load-bearing for this audience |
 | B6b | Map | Stats drawer | P2 — rejected | Drawer is parent-facing; icons add clutter without kid benefit |
 | B6c | Map | Back button arrow | P2 | Replace "←" with CompassIcon; keep "חזרה לנמל" label |
 | B7a | IslandDetail | Hero scale | P2 | Enlarge illustration (240px) + name (32px); modal grows to ~2/3 of viewport so the artwork stays in focus |
