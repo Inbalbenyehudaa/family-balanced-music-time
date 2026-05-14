@@ -73,8 +73,10 @@ family-balanced-music-time/
 │   │   └── README.md                # One-time Supabase + Google OAuth setup
 │   ├── Avatars/                     # Source avatar art
 │   ├── Images/                      # Source island + coastal-find art
+│   ├── public/                      # PWA manifest + icons (favicon, apple-touch, maskable)
+│   ├── archive/                     # HANDOFF-v4..v6 deprecated
 │   ├── microcopy-review.md          # Hebrew microcopy review pass
-│   ├── HANDOFF-v4.md                # Current implementation status + manual test plan
+│   ├── HANDOFF-v7.md                # Current implementation status + manual test plan
 │   ├── index.html                   # Vite HTML entry
 │   ├── package.json
 │   ├── vite.config.ts / tsconfig*.json / tailwind.config.js / postcss.config.js
@@ -87,10 +89,11 @@ family-balanced-music-time/
 │   ├── architecture.md              # Architecture overview
 │   ├── api.md                       # API surface reference
 │   ├── sync.md                      # Offline sync model
+│   ├── ux-recommendations.md        # Kid-usability pass — P0/P1/P2 work tracker
 │   └── archive/                     # Earlier spec revisions
 │
 └── archive/
-    ├── in-the-making specs/         # Deprecated spec drafts (v1–v3) + NEXT-PHASES
+    ├── in-the-making specs/         # Deprecated spec drafts (v1–v3)
     └── initial claude design/       # Original HTML/CSS handoff from claude.ai/design
 ```
 
@@ -103,7 +106,7 @@ family-balanced-music-time/
 - **Persistence:** Supabase (Postgres + Auth + Row-Level Security + Edge Functions), EU region
 - **Offline:** IndexedDB via `idb-keyval` — durable write queue that survives reloads
 - **Auth:** Google OAuth via Supabase (no passwords, no email/password flow)
-- **Testing:** Vitest + React Testing Library (21 tests across balance math, drives store, and sync worker)
+- **Testing:** Vitest + React Testing Library — 5 suites (balance math, drives store, sync queue, sync worker, end-to-end tier flow)
 
 ---
 
@@ -147,7 +150,7 @@ All commands are run from `family-pirate-ship/`.
 npm run dev          # Vite dev server — http://localhost:5173
 npm run build        # typecheck + production build to dist/
 npm run preview      # serve the production build locally
-npm run typecheck    # tsc --noEmit
+npm run typecheck    # tsc -b --noEmit
 npm test             # Vitest, single run
 npm run test:watch   # Vitest, watch mode
 ```
@@ -159,7 +162,7 @@ First-time flow when the dev server is running:
 3. Start a voyage from the home screen, tap a pirate button, tap "end voyage" → reveal plays.
 4. Open Supabase Studio → `drive` / `drive_participant` tables → the drive and its participants should appear within seconds.
 
-Manual test plan (including offline, two-device, and queue-persistence tests) lives in [`family-pirate-ship/HANDOFF-v4.md`](./family-pirate-ship/HANDOFF-v4.md).
+Manual test plan (including offline, two-device, and queue-persistence tests) lives in [`family-pirate-ship/HANDOFF-v7.md`](./family-pirate-ship/HANDOFF-v7.md).
 
 ---
 
@@ -187,7 +190,11 @@ Manual test plan (including offline, two-device, and queue-persistence tests) li
 
 ## Status
 
-Phases 0–3 shipped (foundation, local refactor, real auth + family creation, sync). Phases 4 (invites + family management), 5 (telemetry + data export + account deletion), and 6 (polish + edge cases) are in progress. See [`family-pirate-ship/HANDOFF-v4.md`](./family-pirate-ship/HANDOFF-v4.md) for exactly what's wired up, what's stubbed, and known gotchas.
+Backend phases 0–3 shipped (foundation, local refactor, real auth + family creation, sync). Phases 4 (invites + family management), 5 (telemetry + data export + account deletion), and 6 (polish + edge cases) are in progress.
+
+A separate kid-usability UX pass — tracked in [`specs/ux-recommendations.md`](./specs/ux-recommendations.md) — is the active workstream. P0 (blocker-level) and P1 (top-tier polish) items are 100% closed; the project is currently working through P2 (ambient delight and polish), with several P2 items already shipped.
+
+See [`family-pirate-ship/HANDOFF-v7.md`](./family-pirate-ship/HANDOFF-v7.md) for exactly what's wired up, what's stubbed, and known gotchas.
 
 ---
 
@@ -199,6 +206,6 @@ Phases 0–3 shipped (foundation, local refactor, real auth + family creation, s
 - [`specs/architecture.md`](./specs/architecture.md) — architecture overview
 - [`specs/api.md`](./specs/api.md) — API surface reference
 - [`specs/sync.md`](./specs/sync.md) — offline sync model
-- [`archive/in-the-making specs/NEXT-PHASES.md`](./archive/in-the-making%20specs/NEXT-PHASES.md) — remaining roadmap
+- [`specs/ux-recommendations.md`](./specs/ux-recommendations.md) — kid-usability UX pass (P0/P1/P2 work tracker)
 - [`family-pirate-ship/supabase/README.md`](./family-pirate-ship/supabase/README.md) — backend setup walkthrough
-- [`family-pirate-ship/HANDOFF-v4.md`](./family-pirate-ship/HANDOFF-v4.md) — current implementation state + manual test plan
+- [`family-pirate-ship/HANDOFF-v7.md`](./family-pirate-ship/HANDOFF-v7.md) — current implementation state + manual test plan
