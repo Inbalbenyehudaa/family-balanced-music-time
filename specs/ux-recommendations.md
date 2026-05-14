@@ -465,8 +465,8 @@ These are cross-cutting observations about what separates a "functional children
 The Harbor screen (Home, Reveal) has animated clouds, seagulls, and a bobbing ship — the environment feels alive. The Drive screen (waves variant) has animated music bars and the pirate glow, but the background is static wave SVG. The Spyglass screen has a static sky.
 
 **Recommendation.** Add one ambient idle element per non-harbor screen:
-- Drive: a single `Seagull` component drifting slowly across the wave background, `seagullDrift` keyframe (already exists, theme.css:248–261). Does not compete with the active pirate buttons.
-- Spyglass: a distant `Cloud` drifting at 20% opacity across the sky background — barely perceptible, just enough to breathe life into the scene.
+- Drive: ~~a single `Seagull` component drifting slowly across the wave background.~~ **Revoked 2026-05-14.** Tried it; the drift band sits where the pirate cards live, so the gull is hidden behind the cards in any realistic playthrough. The wave area visible above the cards is too narrow for a useful drift path. Drive stays without ambient life.
+- Spyglass: a distant `Cloud` drifting at 20% opacity across the sky background — barely perceptible, just enough to breathe life into the scene. **Shipped 2026-05-14.**
 
 This costs minimal performance (one CSS animation each) and significantly elevates the sense that you're "at sea."
 
@@ -545,7 +545,7 @@ No design deliverable needed until visual P0/P1 items are resolved.
 | B7a | IslandDetail | Description text | P2 | Move text to collapsed parent-strip; enlarge island illustration |
 | B8a | RollCall | Toggle animation | P2 | `splash` on avatar when toggled active |
 | B8b | RollCall | Error state | P2 | Remove the error text entirely; sleeping avatars above + disabled CTA already communicate the empty state |
-| C2 | Drive + Spyglass | Ambient life | P2 | Add one drifting Seagull / Cloud per screen |
+| C2 | Drive + Spyglass | Ambient life | P2 | Spyglass cloud shipped; Drive seagull revoked (hidden behind pirate cards in real layout) |
 | C6 | Global | Audio | Future | Flagged for later: tap sound, anchor drop, reveal fanfare |
 
 **P0 count: 6**

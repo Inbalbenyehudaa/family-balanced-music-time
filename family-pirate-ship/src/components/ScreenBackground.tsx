@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { HarborScene, SubtleWaves } from './Art';
+import { Cloud, HarborScene, SubtleWaves } from './Art';
 
 export type BackgroundVariant =
     | 'harbor'
@@ -50,13 +50,23 @@ function ParchmentBg() {
 function SkyBg() {
     return (
         <div
-            className="absolute inset-0"
+            className="absolute inset-0 overflow-hidden"
             style={{
                 background:
                     'linear-gradient(180deg, #C5E0E8 0%, #5FA8C7 55%, #1E5F7A 100%)',
             }}
             aria-hidden="true"
-        />
+        >
+            {/* C2 · drifting cloud, very low opacity so it breathes life without competing */}
+            <Cloud
+                style={{
+                    top: 96,
+                    width: 110,
+                    opacity: 0.2,
+                    animation: 'drift 38s linear infinite',
+                }}
+            />
+        </div>
     );
 }
 
