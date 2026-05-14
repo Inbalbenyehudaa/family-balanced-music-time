@@ -994,6 +994,16 @@ export function WaveIcon({ size = 64, color = '#5FA8C7' }: { size?: number; colo
     );
 }
 
+export function IslandIcon({ size = 24 }: { size?: number }) {
+    return (
+        <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="11" fill="#5FA8C7" opacity="0.35" />
+            <path d="M4 16 Q12 9 20 16 L20 18 L4 18 Z" fill="#F0D49B" />
+            <path d="M13 14 L13 8 M13 8 Q11 8.5 10 10 M13 8 Q15 8.5 16 10" stroke="#3F7A3F" strokeWidth="1.4" strokeLinecap="round" fill="none" />
+        </svg>
+    );
+}
+
 export function LockIcon({ size = 22, color = '#5D3F2A' }: { size?: number; color?: string }) {
     return (
         <svg width={size} height={size} viewBox="0 0 24 24">
