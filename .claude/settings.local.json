@@ -6,7 +6,9 @@
       "Bash(echo \"exit=$?\")",
       "Bash(git add *)",
       "Bash(git commit -m ' *)",
-      "Bash(git mv *)"
+      "Bash(git mv *)",
+      "Bash(git stash *)",
+      "Bash(git commit *)"
     ]
   }
 }
