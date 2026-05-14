@@ -27,7 +27,7 @@ export function ScreenIslandDetail({
             />
             <div
                 data-screen-label="10 Island Detail"
-                className="tex-grain relative z-10 h-[70dvh] w-full max-w-[560px] animate-slide-up overflow-y-auto rounded-t-[28px] bg-[rgba(240,212,155,0.97)] px-[22px] py-5 sm:h-auto sm:max-h-[85dvh] sm:rounded-[28px]"
+                className="tex-grain relative z-10 h-[78dvh] w-full max-w-[560px] animate-slide-up overflow-y-auto rounded-t-[28px] bg-[rgba(240,212,155,0.97)] px-[22px] py-5 sm:h-auto sm:max-h-[85dvh] sm:rounded-[28px]"
             >
                 <div className="mx-auto mb-2 h-[5px] w-11 rounded bg-[rgba(93,63,42,0.4)] sm:hidden" />
                 <button
@@ -36,11 +36,11 @@ export function ScreenIslandDetail({
                 >
                     ✕
                 </button>
-                <h2 className="mx-0 mb-1 mt-2 text-center font-map text-[26px] font-bold text-text-primary">
+                <h2 className="mx-0 mb-3 mt-2 text-center font-map text-[32px] font-bold text-text-primary">
                     {island.name}
                 </h2>
                 <div className="my-[10px] flex justify-center text-center">
-                    <IslandIllustration island={island} size={180} showLabel={false} />
+                    <IslandIllustration island={island} size={240} showLabel={false} />
                 </div>
                 <p className="px-3 text-center font-body text-[17px] leading-[1.5] text-text-primary">
                     {island.description}
