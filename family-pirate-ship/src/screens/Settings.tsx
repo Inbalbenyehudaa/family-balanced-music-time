@@ -7,7 +7,7 @@ import type {
     Pirate,
     TweakValues,
 } from '../types';
-import { PirateAvatar, FlagBadge } from '../components/Art';
+import { PirateAvatar, FlagBadge, IslandIcon, WaveIcon, AnchorIcon } from '../components/Art';
 import { PlankButton } from '../components/PlankButton';
 import { ScreenBackground } from '../components/ScreenBackground';
 
@@ -44,7 +44,7 @@ export function ScreenMathGate({
                 <div className="flex flex-1 flex-col items-center justify-center gap-6">
                     <div className="text-center">
                         <h2 className="mx-0 mb-[6px] mt-0 font-display text-2xl font-bold text-text-primary">
-                            הגדרות הורים
+                            הגדרות
                         </h2>
                         <p className="text-text-secondary">רק לקפטנים בוגרים — נא לפתור:</p>
                     </div>
@@ -148,7 +148,7 @@ export function ScreenSettings({
                     >
                         ← חזרה
                     </button>
-                    <h2 className="font-display text-[22px] font-bold">הגדרות הורים</h2>
+                    <h2 className="font-display text-[22px] font-bold">הגדרות</h2>
                 </div>
 
                 <div className="mt-4 flex flex-col gap-[14px]">
@@ -156,7 +156,7 @@ export function ScreenSettings({
 
                     <SettingsSection title="ספים לאיזון">
                         <SettingSlider
-                            label="סף רוח גבית - האזנה שווה בין הורים וילדים"
+                            label="סף רוח גבית - האזנה שווה בין הנוסעים"
                             min={0.5}
                             max={0.7}
                             step={0.01}
@@ -185,12 +185,18 @@ export function ScreenSettings({
                                 .slice(-5)
                                 .reverse()
                                 .map((d, i) => {
-                                    const tierLabel =
+                                    const TierIcon =
                                         d.tier === 'fair'
-                                            ? '🌞 רוח גבית'
+                                            ? IslandIcon
                                             : d.tier === 'coastal'
-                                              ? '🌊 חוף'
-                                              : '⚓ נמל';
+                                              ? WaveIcon
+                                              : AnchorIcon;
+                                    const tierText =
+                                        d.tier === 'fair'
+                                            ? 'אי'
+                                            : d.tier === 'coastal'
+                                              ? 'חוף'
+                                              : 'נמל';
                                     const topIdx = d.perPirate.reduce(
                                         (best, min, idx) =>
                                             min > d.perPirate[best] ? idx : best,
@@ -209,12 +215,18 @@ export function ScreenSettings({
                                     return (
                                         <div
                                             key={i}
-                                            className="flex flex-row-reverse items-center justify-between gap-3 border-b border-dashed border-[rgba(93,63,42,0.25)] px-3 py-[10px] font-body text-sm"
+                                            className="flex flex-row-reverse items-center border-b border-dashed border-[rgba(93,63,42,0.25)] px-3 py-[10px] font-body text-sm"
                                         >
-                                            <div className="flex flex-col items-start">
-                                                <span className="font-semibold text-text-primary">
-                                                    {tierLabel}
-                                                </span>
+                                            <div className="flex flex-1 flex-col items-end gap-[2px]">
+                                                <div className="flex items-center gap-[5px]">
+                                                    {d.tier === 'fair'
+                                                        ? <IslandIcon size={15} />
+                                                        : <TierIcon size={15} color={d.tier === 'coastal' ? '#5FA8C7' : '#5D3F2A'} />
+                                                    }
+                                                    <span className="font-semibold text-text-primary">
+                                                        {tierText}
+                                                    </span>
+                                                </div>
                                                 <span className="text-xs text-text-secondary">
                                                     {d.date} ·{' '}
                                                     {d.totalMin < 1
@@ -223,7 +235,7 @@ export function ScreenSettings({
                                                 </span>
                                             </div>
                                             {hasMax && (
-                                                <div className="flex flex-row-reverse items-center gap-[6px] text-xs text-text-secondary">
+                                                <div className="flex flex-1 items-center gap-[6px] text-xs text-text-secondary">
                                                     <FlagBadge
                                                         color={topPirate.color}
                                                         size={14}

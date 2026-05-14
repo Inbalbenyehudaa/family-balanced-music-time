@@ -224,7 +224,7 @@ A 4.5-year-old encountering this button for the first time has zero affordance t
 **Why this helps a 4.5-year-old.** The hold mechanic exists correctly to prevent accidental ends — a young child will lean on the screen. But right now, the child cannot distinguish "this button ends the voyage" from any other tappable element. The anchor icon + red fill collapse that ambiguity to a single visual signal even before the hold begins.
 
 #### B2b · "מאזין/ה עכשיו" active-state label is text-only
-**Priority: P2**
+**Priority: P2 — REJECTED 2026-05-14.** The italic label is useful for a parent navigating the app on the kid's behalf. The non-reader already gets five other active-state cues; the text doesn't crowd them out and serves the parent path. Not removing.
 
 **Problem.** `Drive.tsx:116–118`: When a pirate is actively listening, the label "מאזין/ה עכשיו" appears below the name. The existing 🎵 emoji on `Drive.tsx:111` is already a great non-reading signal. The italic text label adds nothing for a non-reader.
 
@@ -352,7 +352,7 @@ A blurred, dashed circle with an ocean-teal background. For an adult this implie
 Pair with the existing blur so the mystery is maintained while the "this slot is a potential future reward" message is clear.
 
 #### B6b · Stats drawer is all text — icons would make it skimmable by a non-reader
-**Priority: P2**
+**Priority: P2 — REJECTED 2026-05-14.** Stats drawer is parent-facing — kids don't read counts of voyages or coastal finds. Adding icons clutters a parent surface for a benefit no real user gets. Not changing.
 
 **Problem.** `Map.tsx:82–93`: The stats drawer lists:
 - "איים שהתגלו" + count
@@ -373,7 +373,7 @@ The child sees "3 of those island things," "1 beach thing," and "5 ships" withou
 
 **Problem.** `Map.tsx:149–151`: The back button uses "חזרה לנמל ←" — a Hebrew label with a left-pointing arrow. In RTL layout, "back" (returning to a previous context) is spatially toward the right, not left. The arrow direction is contextually confusing.
 
-**Recommendation.** Replace the "←" text arrow with the existing `CompassIcon` (24px leading), rename the label to "הנמל" or remove the label entirely — the compass icon and "harbor marker" context on the map already establish that the harbor is "home base." The button action is unambiguous.
+**Recommendation.** Replace the "←" text arrow with the existing `CompassIcon` (24px leading). **Keep the label "חזרה לנמל"** (decision 2026-05-14 — the full label aids parent navigation; the change here is purely the arrow → compass swap, label unchanged).
 
 ---
 
@@ -536,12 +536,12 @@ No design deliverable needed until visual P0/P1 items are resolved.
 | C5 | Drive | First-session hint | P1 | Visual-only hold affordance cue on first session |
 | B1b | Home | Map chip | P2 | Replace "X איים" text with island thumbnail count |
 | B1c | Home | Settings button | P1 | Raise tap target to 56px |
-| B2b | Drive | "מאזין/ה עכשיו" | P2 | Remove text label; active state already signaled by 5 other cues |
+| B2b | Drive | "מאזין/ה עכשיו" | P2 — rejected | Label aids parent navigation; not removing |
 | A5 | Global | Hover + hold hint | P2 | Add hover state to PlankButton; pulse hint on hold-button at rest |
 | A6 | Global | Reduced motion | P2 — demoted | Current motion is engaging and on-budget; not pursuing without specific user-reported friction |
 | A7 | Global | Focus states | P2 | Add `:focus-visible` outline for keyboard/a11y |
-| B6b | Map | Stats drawer | P2 | Add icon per stat row |
-| B6c | Map | Back button arrow | P2 | Replace "←" with CompassIcon |
+| B6b | Map | Stats drawer | P2 — rejected | Drawer is parent-facing; icons add clutter without kid benefit |
+| B6c | Map | Back button arrow | P2 | Replace "←" with CompassIcon; keep "חזרה לנמל" label |
 | B7a | IslandDetail | Description text | P2 | Move text to collapsed parent-strip; enlarge island illustration |
 | B8a | RollCall | Toggle animation | P2 | `splash` on avatar when toggled active |
 | B8b | RollCall | Error state | P2 | Show three sleeping avatars instead of text error |
