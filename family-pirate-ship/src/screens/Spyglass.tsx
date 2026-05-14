@@ -46,7 +46,6 @@ export function ScreenSpyglass({
     const ltrIdx = [...activeIdx].reverse();
     const filteredCargo = ltrIdx.map((i) => stacks[i]);
     const filteredColors = ltrIdx.map((i) => pirates[i].color);
-    const maxStack = Math.max(...filteredCargo, 0);
 
     const shipW = 340;
     const avatarSize = 56;
@@ -100,12 +99,20 @@ export function ScreenSpyglass({
                             sailsFull={tier === 'fair'}
                             bobbing
                         />
-                        {/* Avatars hover 5px above the tallest cargo stack,
+                        {/* Avatars float at a fixed position above the ship,
                             aligned to the mast pillars — same geometry as
-                            Reveal. Cargo stack height: max(22, count*18+4). */}
+                            Reveal. Anchored to the top of the ship (mast
+                            tops at SVG y=12 in 400×290 viewBox = 4.138%);
+                            avatar bottom sits 7px above that, so avatar top =
+                            calc(4.138% − 7px − avatarSize). Constant
+                            position regardless of cargo height; the cargo
+                            stacks themselves show listening progress. */}
                         <div
                             className="pointer-events-none absolute inset-x-0 z-[4] flex justify-around"
-                            style={{ bottom: '34%', direction: 'ltr' }}
+                            style={{
+                                top: `calc(4.138% - ${avatarSize + 7}px)`,
+                                direction: 'ltr',
+                            }}
                         >
                             {ltrIdx.map((i) => {
                                 const p = pirates[i];
@@ -113,9 +120,6 @@ export function ScreenSpyglass({
                                     <div
                                         key={p.kind}
                                         className="flex w-[70px] justify-center"
-                                        style={{
-                                            transform: `translateY(-${maxStack * 18 + 4 + 5 + avatarSize}px)`,
-                                        }}
                                     >
                                         <PirateAvatar kind={p.kind} size={avatarSize} />
                                     </div>
