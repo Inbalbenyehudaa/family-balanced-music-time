@@ -7,8 +7,5 @@
  * consumer side. The TweaksPanel already self-hides in production.
  */
 export const tweakState = {
-    // TEMPORARY: on in production for 8× time acceleration during testing.
-    // Flip back to false (and redeploy) to return to real-time — the
-    // TweaksPanel is DEV-only so there is no in-app toggle in prod.
-    demoFastClock: true,
+    demoFastClock: false,
 };
