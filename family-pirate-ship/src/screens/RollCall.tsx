@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Pirate } from '../types';
-import { PirateAvatar, FlagBadge } from '../components/Art';
+import { PirateAvatar, FlagBadge, AnchorIcon } from '../components/Art';
 import { PlankButton } from '../components/PlankButton';
 
 export function ScreenRollCall({
@@ -101,7 +101,8 @@ export function ScreenRollCall({
 
                 <div className="mt-[14px]">
                     <PlankButton onClick={() => onSetSail(active)} disabled={count === 0}>
-                        ⚓ מפליגים!
+                        <AnchorIcon size={22} color="#5D3F2A" />
+                        <span>מפליגים!</span>
                     </PlankButton>
                 </div>
             </div>
