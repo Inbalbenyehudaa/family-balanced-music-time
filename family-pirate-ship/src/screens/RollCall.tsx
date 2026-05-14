@@ -100,11 +100,6 @@ export function ScreenRollCall({
                 ))}
 
                 <div className="mt-[14px]">
-                    {count === 0 && (
-                        <div className="mb-[10px] text-center font-body text-[15px] font-semibold text-treasure-red">
-                            אף אחד לא מפליג? בלתי אפשרי! 🤨
-                        </div>
-                    )}
                     <PlankButton onClick={() => onSetSail(active)} disabled={count === 0}>
                         ⚓ מפליגים!
                     </PlankButton>

@@ -410,7 +410,7 @@ The Roll Call toggles are already a strong design — color-on = pirate's flag c
 
 **Problem.** If no pirates are toggled, an error message appears. This is text-only.
 
-**Recommendation.** Show three sleeping pirates (all in gray, all with "zzz") as the visual error state — the `sleeping={true}` prop already exists on `PirateAvatar`. The three sleeping avatars communicate "no one is awake to sail" without any words. Optionally add a tiny anchor sitting idle in an empty harbor.
+**Recommendation.** ~~Show three sleeping pirates as the visual error state.~~ **Revised 2026-05-14:** when all toggles are off, the three sleeping avatars are *already visible* in the row list above. The empty-state text is redundant clutter on top of an already-clear visual. Decision: **remove the error text entirely.** The three sleeping avatars + the disabled "מפליגים!" button (already greyed via PlankButton's `disabled` prop) communicate the state without any words.
 
 ---
 
@@ -544,7 +544,7 @@ No design deliverable needed until visual P0/P1 items are resolved.
 | B6c | Map | Back button arrow | P2 | Replace "←" with CompassIcon; keep "חזרה לנמל" label |
 | B7a | IslandDetail | Description text | P2 | Move text to collapsed parent-strip; enlarge island illustration |
 | B8a | RollCall | Toggle animation | P2 | `splash` on avatar when toggled active |
-| B8b | RollCall | Error state | P2 | Show three sleeping avatars instead of text error |
+| B8b | RollCall | Error state | P2 | Remove the error text entirely; sleeping avatars above + disabled CTA already communicate the empty state |
 | C2 | Drive + Spyglass | Ambient life | P2 | Add one drifting Seagull / Cloud per screen |
 | C6 | Global | Audio | Future | Flagged for later: tap sound, anchor drop, reveal fanfare |
 
