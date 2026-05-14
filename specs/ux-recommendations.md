@@ -386,10 +386,10 @@ The child sees "3 of those island things," "1 beach thing," and "5 ships" withou
 **Problem.** `IslandDetail.tsx`: The modal shows island name (heading), a description paragraph (`island.description` — a full sentence of Hebrew narrative), and stats (discovered date, voyage time). None of this is readable for a 4.5-year-old. The island illustration is present but competes with a large text block.
 
 **Recommendation.**
-1. Make the island illustration the dominant element — full-width (min 200px), centered at the top.
-2. Push the description text to a collapsible "parent info" strip, collapsed by default. A parent tap expands it. The child sees: island image → voyage-stats as icons → their avatar(s) with the ship that unlocked it.
-3. Add a `PirateShip` miniature + `CargoStack` visualization (existing components) showing the voyage that earned this island — the child sees "we were on the ship together and found this." This reuses existing components and makes the island emotionally personal.
-4. Close button: raise to 56px (see A3).
+1. ~~Make the island illustration the dominant element — full-width (min 200px), centered at the top.~~ **Revised 2026-05-14:** the original layout (name → illustration → description → stats) reads well as-is. The fix is purely *scale*: bump illustration to 240px and name to 32px so they hold focus, and grow the modal sheet to ~2/3 of viewport (h-[78dvh]) so the larger artwork has room.
+2. ~~Push the description text to a collapsible "parent info" strip~~ **Rejected 2026-05-14.** Collapsing the description added friction without buying anything — the description is a small block that doesn't crowd the kid view at the new sizes.
+3. ~~Add a `PirateShip` miniature + `CargoStack` visualization~~ **Skipped 2026-05-14** — would require per-island voyage-recap data we don't have yet; not worth the data plumbing for this pass.
+4. ~~Close button: raise to 56px (see A3).~~ **Skipped 2026-05-14** — the bare ✕ button works fine at this scale; not raising on a parent-leaning surface.
 
 ---
 
@@ -542,7 +542,7 @@ No design deliverable needed until visual P0/P1 items are resolved.
 | A7 | Global | Focus states | P2 | Add `:focus-visible` outline for keyboard/a11y |
 | B6b | Map | Stats drawer | P2 — rejected | Drawer is parent-facing; icons add clutter without kid benefit |
 | B6c | Map | Back button arrow | P2 | Replace "←" with CompassIcon; keep "חזרה לנמל" label |
-| B7a | IslandDetail | Description text | P2 | Move text to collapsed parent-strip; enlarge island illustration |
+| B7a | IslandDetail | Hero scale | P2 | Enlarge illustration (240px) + name (32px); modal grows to ~2/3 of viewport so the artwork stays in focus |
 | B8a | RollCall | Toggle animation | P2 | `splash` on avatar when toggled active |
 | B8b | RollCall | Error state | P2 | Remove the error text entirely; sleeping avatars above + disabled CTA already communicate the empty state |
 | C2 | Drive + Spyglass | Ambient life | P2 | Spyglass cloud shipped; Drive seagull revoked (hidden behind pirate cards in real layout) |
