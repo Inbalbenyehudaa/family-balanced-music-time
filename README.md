@@ -139,7 +139,6 @@ Then complete the one-time backend setup — it takes ~45 minutes, most of it cl
    ```bash
    node -e "console.log(crypto.randomBytes(32).toString('hex'))"
    ```
-
 ---
 
 ## Run
@@ -162,40 +161,6 @@ First-time flow when the dev server is running:
 3. Start a voyage from the home screen, tap a pirate button, tap "end voyage" → reveal plays.
 4. Open Supabase Studio → `drive` / `drive_participant` tables → the drive and its participants should appear within seconds.
 
-Manual test plan (including offline, two-device, and queue-persistence tests) lives in [`family-pirate-ship/HANDOFF-v7.md`](./family-pirate-ship/HANDOFF-v7.md).
-
----
-
-## Key features
-
-**Balance-first progression.** Tier math is pure and tested. A drive is only "fair winds" if the dominant pirate's share is at or below 60% of total listening time (configurable in parent settings). Drives shorter than 2 minutes are auto-demoted to "harbor" so a 10-second tap doesn't unlock an island. See [`src/lib/balance.ts`](./family-pirate-ship/src/lib/balance.ts).
-
-**Offline-first drives.** Taps write to a Zustand store immediately. On drive end, the reveal plays from local data; in the background, a durable IndexedDB queue pushes the `insert_drive` + `unlock_island` / `find_coastal` writes to Supabase. The queue survives tab closes; transient network errors pause the flush without losing ordering; unique-violation conflicts are dropped as "already applied."
-
-**Multi-device families.** All family data is keyed by `family_id`, not `user_id`. Parents on two different phones see the same pirates, drives, and islands. Sync is *not* real-time (by design — keeps the v1 simple); a pull happens on app focus, visibility change, and a 60s heartbeat while the tab is visible and online.
-
-**Google-only auth.** No passwords, no reset flows. Single Google account = single family. One-way hashed family IDs keep telemetry anonymous even to the developer.
-
-**Strict privacy posture.** First-party telemetry only, EU data region, hard-delete on request, one-click JSON export of all family data. No third-party analytics SDKs.
-
-**Hebrew / RTL UI.** `dir="rtl" lang="he"` at the shell level, Tailwind RTL plugin, Heebo / Frank Ruhl Libre / Suez One webfonts.
-
-**Designed for a young child's attention.** Three big buttons mid-drive, a Spyglass peek on demand, and a five-stage cinematic reveal at drive end. 15 themed islands + 8 coastal finds — each one hand-picked to land with the kid (pasta jellyfish, Paw Patrol rescue bay, Kinder Egg shore, library of reading owls).
-
-**Responsive shell.** `.app-shell` provides a centered max-width-560px column on desktop and full-bleed on mobile. Modals are bottom-sheets on mobile, centered dialogs on desktop.
-
-**Dev tweaks panel.** In development builds only, a floating panel exposes tier thresholds, audio/fog toggles, a fast-clock mode for demo drives, and direct navigation to every screen. Hidden in production.
-
----
-
-## Status
-
-Backend phases 0–3 shipped (foundation, local refactor, real auth + family creation, sync). Phases 4 (invites + family management), 5 (telemetry + data export + account deletion), and 6 (polish + edge cases) are in progress.
-
-A separate kid-usability UX pass — tracked in [`specs/ux-recommendations.md`](./specs/ux-recommendations.md) — is the active workstream. P0 (blocker-level) and P1 (top-tier polish) items are 100% closed; the project is currently working through P2 (ambient delight and polish), with several P2 items already shipped.
-
-See [`family-pirate-ship/HANDOFF-v7.md`](./family-pirate-ship/HANDOFF-v7.md) for exactly what's wired up, what's stubbed, and known gotchas.
-
 ---
 
 ## Further reading
@@ -208,4 +173,3 @@ See [`family-pirate-ship/HANDOFF-v7.md`](./family-pirate-ship/HANDOFF-v7.md) for
 - [`specs/sync.md`](./specs/sync.md) — offline sync model
 - [`specs/ux-recommendations.md`](./specs/ux-recommendations.md) — kid-usability UX pass (P0/P1/P2 work tracker)
 - [`family-pirate-ship/supabase/README.md`](./family-pirate-ship/supabase/README.md) — backend setup walkthrough
-- [`family-pirate-ship/HANDOFF-v7.md`](./family-pirate-ship/HANDOFF-v7.md) — current implementation state + manual test plan
