@@ -203,7 +203,10 @@ export function ScreenMap({
                 {/* Back button */}
                 <div className="relative z-[1] pt-4">
                     <PlankButton onClick={onBack} variant="sand">
-                        חזרה לנמל ←
+                        <span className="inline-flex flex-row-reverse items-center gap-2">
+                            <span>חזרה לנמל</span>
+                            <CompassIcon size={24} />
+                        </span>
                     </PlankButton>
                 </div>
             </div>
