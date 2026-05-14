@@ -13,6 +13,7 @@ export function ScreenRollCall({
     onSetSail: (active: boolean[]) => void;
 }) {
     const [active, setActive] = useState<boolean[]>(pirates.map(() => true));
+    const [wakeKey, setWakeKey] = useState<number[]>(pirates.map(() => 0));
     const count = active.filter(Boolean).length;
     return (
         <div className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center">
@@ -43,7 +44,19 @@ export function ScreenRollCall({
                             active[i] ? 'opacity-100' : 'opacity-75'
                         }`}
                     >
-                        <PirateAvatar kind={p.kind} size={64} sleeping={!active[i]} />
+                        <span
+                            key={wakeKey[i]}
+                            style={{
+                                display: 'inline-flex',
+                                animation:
+                                    active[i] && wakeKey[i] > 0
+                                        ? 'wakePop 360ms cubic-bezier(0.34, 1.56, 0.64, 1)'
+                                        : 'none',
+                                transformOrigin: 'center',
+                            }}
+                        >
+                            <PirateAvatar kind={p.kind} size={64} sleeping={!active[i]} />
+                        </span>
                         <div className="flex-1">
                             <div className="font-display text-xl font-bold text-text-primary">
                                 {p.name}
@@ -55,8 +68,14 @@ export function ScreenRollCall({
                         <button
                             onClick={() => {
                                 const next = [...active];
+                                const wasOff = !next[i];
                                 next[i] = !next[i];
                                 setActive(next);
+                                if (wasOff) {
+                                    const nextWake = [...wakeKey];
+                                    nextWake[i] = nextWake[i] + 1;
+                                    setWakeKey(nextWake);
+                                }
                             }}
                             aria-label={`${active[i] ? 'הסר' : 'הוסף'} ${p.name} מהפלגה`}
                             className="relative h-10 w-[76px] cursor-pointer rounded-[22px] border-none transition-colors duration-200"
