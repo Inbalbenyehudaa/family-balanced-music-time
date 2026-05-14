@@ -199,7 +199,18 @@ export function ScreenDrive({
                             }}
                         >
                             <span>סיימו הפלגה</span>
-                            <AnchorIcon size={22} color="#5D3F2A" />
+                            <span
+                                style={{
+                                    display: 'inline-flex',
+                                    animation:
+                                        holdProgress === 0
+                                            ? 'softPulse 1.8s ease-in-out infinite'
+                                            : 'none',
+                                    transformOrigin: 'center',
+                                }}
+                            >
+                                <AnchorIcon size={22} color="#5D3F2A" />
+                            </span>
                         </div>
                         <div
                             className="absolute -left-[2px] top-[10px] h-9 w-[6px] rounded-[3px] opacity-70"

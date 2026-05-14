@@ -130,7 +130,7 @@ Specific per-screen applications detailed in Part B. The Hebrew word becomes a s
 ---
 
 ### A6 · No `prefers-reduced-motion` handling
-**Priority: P2**
+**Priority: P2 — DEMOTED 2026-05-14.** Motion as currently tuned is engaging and part of the storybook feel, not a friction point. Ambient load is within budget on target devices. Not pursuing without specific feedback that the animation load is harming a real user (vestibular sensitivity, low-battery drain).
 
 **Problem.** The app uses 15+ keyframe animations (sail-breathing, music-bars, bob, iris-in, fog-clear, noteRise, etc.). If a parent's phone has iOS/Android reduced-motion enabled, the app still runs all animations. This is a CSS media query omission.
 
@@ -538,7 +538,7 @@ No design deliverable needed until visual P0/P1 items are resolved.
 | B1c | Home | Settings button | P1 | Raise tap target to 56px |
 | B2b | Drive | "מאזין/ה עכשיו" | P2 | Remove text label; active state already signaled by 5 other cues |
 | A5 | Global | Hover + hold hint | P2 | Add hover state to PlankButton; pulse hint on hold-button at rest |
-| A6 | Global | Reduced motion | P2 | Wrap ambient animations in `@media (prefers-reduced-motion)` |
+| A6 | Global | Reduced motion | P2 — demoted | Current motion is engaging and on-budget; not pursuing without specific user-reported friction |
 | A7 | Global | Focus states | P2 | Add `:focus-visible` outline for keyboard/a11y |
 | B6b | Map | Stats drawer | P2 | Add icon per stat row |
 | B6c | Map | Back button arrow | P2 | Replace "←" with CompassIcon |
