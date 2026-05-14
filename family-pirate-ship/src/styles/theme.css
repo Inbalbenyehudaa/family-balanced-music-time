@@ -362,6 +362,20 @@ body {
         opacity: 1;
     }
 }
+@keyframes wakePop {
+    0% {
+        transform: scale(1);
+    }
+    45% {
+        transform: scale(1.18);
+    }
+    75% {
+        transform: scale(0.96);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
 @keyframes shipSail {
     0% {
         transform: translateX(-160px);
