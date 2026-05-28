@@ -15,6 +15,10 @@ export interface DrivesState {
     currentIdx: number;
     driveInProgress: boolean;
     driveStartedAt: number | null;
+    // Wall-clock anchor of the last tick. The tick credits (now − lastTickAt)
+    // seconds to the active pirate so a backgrounded/suspended tab catches up
+    // on return instead of losing the time it spent suspended.
+    lastTickAt: number | null;
 
     // Accumulated state
     drives: Drive[];
@@ -46,6 +50,7 @@ const initialState = {
     currentIdx: -1,
     driveInProgress: false,
     driveStartedAt: null as number | null,
+    lastTickAt: null as number | null,
     drives: [] as Drive[],
     unlockedIslandIds: [] as string[],
     latestUnlock: null as Island | null,
@@ -63,28 +68,57 @@ export const useDrivesStore = create<DrivesState>((set, get) => ({
             currentIdx: -1,
             driveInProgress: true,
             driveStartedAt: Date.now(),
+            lastTickAt: Date.now(),
         }),
 
     setCurrentIdx: (i) =>
         set((state) => {
+            const now = Date.now();
+            const last = state.lastTickAt ?? now;
+            const elapsedSec = (now - last) / 1000;
+
+            // Settle wall-clock delta onto the OUTGOING pirate before switching;
+            // otherwise the time accumulated since the last tick gets handed to
+            // whoever the user just tapped. Settle at speed=1 — demo-fast-clock
+            // is dev-only and under-crediting by ~7s on a tap-switch is fine.
+            let nextMinutes = state.minutes;
+            if (
+                state.currentIdx >= 0 &&
+                state.active[state.currentIdx] &&
+                elapsedSec > 0
+            ) {
+                nextMinutes = [...state.minutes];
+                nextMinutes[state.currentIdx] += elapsedSec;
+            }
+
             if (i < 0 || i === state.currentIdx) {
-                return { currentIdx: i };
+                return { currentIdx: i, minutes: nextMinutes, lastTickAt: now };
             }
             // Tap counts as a switch to this pirate.
-            const next = [...state.tapCounts];
-            next[i] = (next[i] ?? 0) + 1;
-            return { currentIdx: i, tapCounts: next };
+            const tapCounts = [...state.tapCounts];
+            tapCounts[i] = (tapCounts[i] ?? 0) + 1;
+            return { currentIdx: i, minutes: nextMinutes, tapCounts, lastTickAt: now };
         }),
 
     tick: (speed) =>
         set((state) => {
-            if (state.currentIdx < 0 || !state.active[state.currentIdx]) return state;
+            const now = Date.now();
+            const last = state.lastTickAt ?? now;
+            const elapsedSec = (now - last) / 1000;
+            // No active pirate selected → just advance the anchor; don't credit anyone.
+            if (state.currentIdx < 0 || !state.active[state.currentIdx]) {
+                return { lastTickAt: now };
+            }
             const next = [...state.minutes];
-            next[state.currentIdx] += speed;
-            return { minutes: next };
+            next[state.currentIdx] += elapsedSec * speed;
+            return { minutes: next, lastTickAt: now };
         }),
 
     endDrive: async (pirates) => {
+        // Settle the trailing partial second onto the active pirate before we
+        // freeze the totals. speed=1 matches setCurrentIdx's settle and is
+        // negligible under the dev-only fast clock.
+        get().tick(1);
         const state = get();
         const { minutes, tapCounts, active, unlockedIslandIds, drives, driveStartedAt } =
             state;
@@ -238,6 +272,7 @@ export const useDrivesStore = create<DrivesState>((set, get) => ({
             currentIdx: -1,
             driveInProgress: false,
             driveStartedAt: null,
+            lastTickAt: null,
         }),
 
     setMinutes: (m) => set({ minutes: m }),

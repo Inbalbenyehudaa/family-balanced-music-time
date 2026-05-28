@@ -12,6 +12,9 @@ const PIRATES: Pirate[] = [
 
 function resetStores() {
     useDrivesStore.getState().resetAll();
+    // Tests that bypass startDrive (writing minutes directly via setState) need
+    // a wall-clock anchor so endDrive's settle-tick credits ~0s, not garbage.
+    useDrivesStore.setState({ lastTickAt: Date.now() });
     useAuthStore.setState({
         user: { id: 'u1', email: 'a@b.c', displayName: 'A' },
         family: {
@@ -60,6 +63,7 @@ describe('drivesStore.endDrive', () => {
             currentIdx: 0,
             tapCounts: [1, 0, 0],
             minutes: [130, 0, 0],
+            lastTickAt: Date.now(),
         });
         await useDrivesStore.getState().endDrive(PIRATES);
 
@@ -82,6 +86,7 @@ describe('drivesStore.endDrive', () => {
             currentIdx: 0,
             tapCounts: [1, 1, 1],
             minutes: [120, 120, 120],
+            lastTickAt: Date.now(),
         });
         await useDrivesStore.getState().endDrive(PIRATES);
 
@@ -105,6 +110,7 @@ describe('drivesStore.endDrive', () => {
             currentIdx: 0,
             tapCounts: [1, 1, 1],
             minutes: [210, 45, 45],
+            lastTickAt: Date.now(),
         });
         await useDrivesStore.getState().endDrive(PIRATES);
 
@@ -129,6 +135,7 @@ describe('drivesStore.endDrive', () => {
             currentIdx: 0,
             tapCounts: [3, 1, 2],
             minutes: [180, 120, 90],
+            lastTickAt: Date.now(),
         });
         await useDrivesStore.getState().endDrive(PIRATES);
 
@@ -188,6 +195,7 @@ describe('drivesStore.endDrive', () => {
             currentIdx: 0,
             tapCounts: [1, 1, 1],
             minutes: [31, 31, 31],
+            lastTickAt: Date.now(),
         });
         await useDrivesStore.getState().endDrive(PIRATES);
 
@@ -205,6 +213,7 @@ describe('drivesStore.endDrive', () => {
             currentIdx: 0,
             tapCounts: [2, 0, 1],
             minutes: [240, 0, 60],
+            lastTickAt: Date.now(),
         });
         await useDrivesStore.getState().endDrive(PIRATES);
 
@@ -240,6 +249,7 @@ describe('drivesStore.endDrive', () => {
             currentIdx: 0,
             tapCounts: [1, 0, 0],
             minutes: [130, 0, 0],
+            lastTickAt: Date.now(),
         });
         await useDrivesStore.getState().endDrive(piratesWithoutIds);
 
@@ -248,5 +258,51 @@ describe('drivesStore.endDrive', () => {
         // But no server enqueue.
         const sync = useSyncStore.getState();
         expect(sync.enqueue).not.toHaveBeenCalled();
+    });
+
+    it('credits elapsed wall-clock time on tick after a long gap (mobile suspension)', () => {
+        vi.useFakeTimers();
+        const t0 = 1_700_000_000_000;
+        vi.setSystemTime(t0);
+
+        const s = useDrivesStore.getState();
+        s.startDrive([true, true, true]);
+        useDrivesStore.setState({ currentIdx: 0, lastTickAt: t0 });
+
+        // Simulate 5 minutes of OS-suspended JS — no ticks fired.
+        vi.setSystemTime(t0 + 5 * 60 * 1000);
+
+        // The interval fires (or visibilitychange does) on return.
+        useDrivesStore.getState().tick(1);
+
+        const minutes = useDrivesStore.getState().minutes;
+        // Kid (idx 0) should have ~300s credited. Allow 1s slop for fake-timer math.
+        expect(minutes[0]).toBeGreaterThanOrEqual(299);
+        expect(minutes[0]).toBeLessThanOrEqual(301);
+
+        vi.useRealTimers();
+    });
+
+    it('settles in-flight wall-clock time onto the outgoing pirate when switching', () => {
+        vi.useFakeTimers();
+        const t0 = 1_700_000_000_000;
+        vi.setSystemTime(t0);
+
+        const s = useDrivesStore.getState();
+        s.startDrive([true, true, true]);
+        useDrivesStore.setState({ currentIdx: 0, lastTickAt: t0 });
+
+        // 30s pass on the kid…
+        vi.setSystemTime(t0 + 30_000);
+        // …then user taps mom.
+        useDrivesStore.getState().setCurrentIdx(1);
+
+        const minutes = useDrivesStore.getState().minutes;
+        // The 30s belong to the kid (outgoing), not mom (incoming).
+        expect(minutes[0]).toBeGreaterThanOrEqual(29);
+        expect(minutes[0]).toBeLessThanOrEqual(31);
+        expect(minutes[1]).toBe(0);
+
+        vi.useRealTimers();
     });
 });
