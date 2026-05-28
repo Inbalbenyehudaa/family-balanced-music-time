@@ -17,6 +17,7 @@ import { ScreenHome } from '../screens/Home';
 import { ScreenRollCall } from '../screens/RollCall';
 import { ScreenDrive } from '../screens/Drive';
 import { ScreenSpyglass } from '../screens/Spyglass';
+import { useTickEffect } from './useTickEffect';
 import { ScreenReveal } from '../screens/Reveal';
 import { ScreenMap } from '../screens/Map';
 import { ScreenIslandDetail } from '../screens/IslandDetail';
@@ -110,19 +111,11 @@ export function DriveRoute() {
     const minutes = useDrivesStore((s) => s.minutes);
     const currentIdx = useDrivesStore((s) => s.currentIdx);
     const setCurrentIdx = useDrivesStore((s) => s.setCurrentIdx);
-    const { demoFastClock } = useDevTweaks();
     // Confirm-end flow: idle → flashing (brief black gate) → confirming (modal up).
     // The pre-modal dim signals "this is irreversible" before the modal materializes.
     const [confirmPhase, setConfirmPhase] = useState<'idle' | 'flashing' | 'confirming'>('idle');
 
-    // Tick interval — replaces the effect that used to live in App.tsx.
-    useEffect(() => {
-        const id = setInterval(() => {
-            const speed = demoFastClock ? 8 : 1;
-            useDrivesStore.getState().tick(speed);
-        }, 1000);
-        return () => clearInterval(id);
-    }, [demoFastClock]);
+    useTickEffect();
 
     useEffect(() => {
         if (confirmPhase !== 'flashing') return;
@@ -171,15 +164,8 @@ export function SpyglassRoute() {
     const pirates = usePiratesStore((s) => s.pirates);
     const active = useDrivesStore((s) => s.active);
     const minutes = useDrivesStore((s) => s.minutes);
-    // Spyglass needs the tick to keep running — use the same effect as Drive.
-    const { demoFastClock } = useDevTweaks();
-    useEffect(() => {
-        const id = setInterval(() => {
-            const speed = demoFastClock ? 8 : 1;
-            useDrivesStore.getState().tick(speed);
-        }, 1000);
-        return () => clearInterval(id);
-    }, [demoFastClock]);
+    // Spyglass keeps the tick running so the timer doesn't pause behind the modal.
+    useTickEffect();
 
     return (
         <ScreenSpyglass
