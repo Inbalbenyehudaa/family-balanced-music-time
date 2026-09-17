@@ -6,6 +6,7 @@ import { calculateBalance } from '../lib/balance';
 import { useSettingsStore } from './settingsStore';
 import { useAuthStore } from './authStore';
 import { useSyncStore } from './syncStore';
+import { loadDriveSession } from './driveSession';
 
 export interface DrivesState {
     // Drive timer state
@@ -59,6 +60,11 @@ const initialState = {
 
 export const useDrivesStore = create<DrivesState>((set, get) => ({
     ...initialState,
+    // A voyage the OS interrupted by discarding the tab is restored here, at
+    // construction time, so the Drive screen renders the real timer on its
+    // first paint rather than flashing zeros. Spreads nothing when there is
+    // no resumable snapshot, which is the usual case.
+    ...(loadDriveSession() ?? {}),
 
     startDrive: (active) =>
         set({

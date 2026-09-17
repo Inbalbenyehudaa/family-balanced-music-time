@@ -8,6 +8,7 @@ import { useSettingsStore } from './store/settingsStore';
 import { useAuthBootstrap } from './hooks/useAuthBootstrap';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
 import { useSyncOnFocus } from './hooks/useSyncOnFocus';
+import { useDriveSessionPersistence } from './hooks/useDriveSessionPersistence';
 import { tweakState } from './routes/tweakState';
 import type { TweakValues, Screen } from './types';
 
@@ -28,6 +29,7 @@ function Shell() {
     useAuthBootstrap();
     useOnlineStatus();
     useSyncOnFocus();
+    useDriveSessionPersistence();
     return (
         <>
             <div dir="rtl" lang="he" className="app-shell">

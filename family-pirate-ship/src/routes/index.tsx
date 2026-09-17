@@ -1,5 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
-import { RedirectIfAuthed, RequireAuth, RequireFamily } from './guards';
+import { RedirectIfAuthed, RequireActiveDrive, RequireAuth, RequireFamily } from './guards';
 import {
     AuthCallbackRoute,
     AuthDebugRoute,
@@ -98,7 +98,9 @@ export function AppRoutes() {
                 path="/drive/active"
                 element={
                     <RequireFamily>
-                        <DriveRoute />
+                        <RequireActiveDrive>
+                            <DriveRoute />
+                        </RequireActiveDrive>
                     </RequireFamily>
                 }
             />
@@ -106,7 +108,9 @@ export function AppRoutes() {
                 path="/drive/spyglass"
                 element={
                     <RequireFamily>
-                        <SpyglassRoute />
+                        <RequireActiveDrive>
+                            <SpyglassRoute />
+                        </RequireActiveDrive>
                     </RequireFamily>
                 }
             />

@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import { useDrivesStore } from '../store/drivesStore';
 import { readPendingInvite } from '../lib/pendingInvite';
 
 /**
@@ -115,6 +116,32 @@ export function RequireFamily({ children }: { children: ReactNode }) {
         });
         return <Navigate to={dest} replace />;
     }
+    return <>{children}</>;
+}
+
+/**
+ * The Drive and Spyglass screens only mean anything once a voyage has been
+ * started. The OS can discard the tab mid-voyage and Chrome reloads it from
+ * the URL; when the snapshot was too stale to resume, the store comes back
+ * pristine and those screens would render a zeroed timer that looks like a
+ * live voyage nobody started. Send that reload home instead.
+ *
+ * The test is `driveStartedAt`, not `driveInProgress`, and the difference
+ * matters. Ending a voyage clears `driveInProgress` and navigates to Reveal
+ * in the same click — but the store update and the router update reach this
+ * component in separate renders, so a `driveInProgress` test renders once at
+ * /drive/active with the voyage already finished and bounces the family home,
+ * swallowing the reveal. `driveStartedAt` survives `endDrive` and is null
+ * only in a store that has never run a voyage, which is exactly the cold
+ * reload this guard is here to catch. Covered by guards.test.tsx.
+ *
+ * Nests inside RequireFamily, so by the time it runs the bootstrap has
+ * settled and any resumed drive (restored synchronously when the store was
+ * constructed) is already in place.
+ */
+export function RequireActiveDrive({ children }: { children: ReactNode }) {
+    const driveStartedAt = useDrivesStore((s) => s.driveStartedAt);
+    if (driveStartedAt === null) return <Navigate to="/home" replace />;
     return <>{children}</>;
 }
 
