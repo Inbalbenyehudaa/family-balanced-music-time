@@ -3,6 +3,19 @@ import { useDrivesStore } from './drivesStore';
 import { useAuthStore } from './authStore';
 import { useSyncStore } from './syncStore';
 import type { Pirate } from '../types';
+import { record } from '../telemetry/record';
+
+// The whole file runs against a stubbed diagnostics channel. Nothing here
+// asserted on it before, and stubbing keeps the real ring buffer out of the
+// test run.
+vi.mock('../telemetry/record', () => ({ record: vi.fn() }));
+
+const recorded = record as unknown as ReturnType<typeof vi.fn>;
+
+/** Contexts recorded under one code, in order. */
+function emitted(code: string): unknown[] {
+    return recorded.mock.calls.filter((c) => c[0] === code).map((c) => c[1]);
+}
 
 const PIRATES: Pirate[] = [
     { kind: 'kid', role: 'kid', name: 'Kid', color: '#E63946', serverId: 'p-kid' },
@@ -313,6 +326,7 @@ describe('drivesStore pause/resume', () => {
     beforeEach(() => {
         vi.useFakeTimers();
         vi.setSystemTime(T0);
+        recorded.mockClear();
     });
 
     afterEach(() => {
@@ -415,6 +429,42 @@ describe('drivesStore pause/resume', () => {
         useDrivesStore.getState().resumeDrive();
         expect(useDrivesStore.getState().currentIdx).toBe(0);
         expect(useDrivesStore.getState().tapCounts).toEqual([1, 0, 0]);
+    });
+
+    it('reports a break and how long it lasted', () => {
+        sailing();
+        vi.setSystemTime(T0 + 30_000);
+        useDrivesStore.getState().pauseDrive();
+        expect(emitted('drive_break_started')).toHaveLength(1);
+
+        // A 7-minute petrol stop.
+        vi.setSystemTime(T0 + 30_000 + 7 * 60_000);
+        useDrivesStore.getState().resumeDrive();
+        expect(emitted('drive_break_ended')).toEqual([{ breakSec: 420 }]);
+    });
+
+    it('does not collide with drive_resumed', () => {
+        // drive_resumed means "voyage rebuilt after the OS discarded the tab"
+        // — the signal the whole channel exists to produce. A break must
+        // never be mistaken for one.
+        sailing();
+        useDrivesStore.getState().pauseDrive();
+        useDrivesStore.getState().resumeDrive();
+        expect(emitted('drive_resumed')).toHaveLength(0);
+    });
+
+    it('reports no duration for a break the tab did not survive', () => {
+        // pausedAt is deliberately absent from the snapshot, so a restored
+        // break resumes without inventing a number.
+        sailing();
+        useDrivesStore.getState().pauseDrive();
+        recorded.mockClear();
+        // Simulate the restore: pausedFrom came back, pausedAt did not.
+        useDrivesStore.setState({ pausedAt: null });
+
+        useDrivesStore.getState().resumeDrive();
+        expect(emitted('drive_break_ended')).toHaveLength(0);
+        expect(useDrivesStore.getState().currentIdx).toBe(0);
     });
 
     it('clears pausedFrom on startDrive and cancelDrive', () => {

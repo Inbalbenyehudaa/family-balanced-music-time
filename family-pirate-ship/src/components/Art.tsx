@@ -886,6 +886,31 @@ export function AnchorIcon({ size = 22, color = '#5D3F2A' }: { size?: number; co
     );
 }
 
+/**
+ * The standard transport pause mark, deliberately not a nautical metaphor. A
+ * five-year-old already knows this shape from every screen they have touched;
+ * the pirate world lives in the words and the art, and the controls stay
+ * obvious. The anchor was not available in any case — it is already
+ * AnchorIcon on End Voyage, where a second one would read as "finish".
+ */
+export function PauseMark({ size = 22, color = '#5D3F2A' }: { size?: number; color?: string }) {
+    return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill={color} aria-hidden="true">
+            <rect x="7" y="5" width="3.6" height="14" rx="1.6" />
+            <rect x="13.4" y="5" width="3.6" height="14" rx="1.6" />
+        </svg>
+    );
+}
+
+/** PauseMark's partner, for the control that ends a break. */
+export function PlayMark({ size = 22, color = '#5D3F2A' }: { size?: number; color?: string }) {
+    return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill={color} aria-hidden="true">
+            <path d="M8 5.6c0-.9 1-1.5 1.8-1L18 11c.7.4.7 1.5 0 1.9l-8.2 5.5c-.8.5-1.8-.1-1.8-1V5.6z" />
+        </svg>
+    );
+}
+
 export function SailingShipIcon({
     size = 64,
     sail = '#FBF1DC',

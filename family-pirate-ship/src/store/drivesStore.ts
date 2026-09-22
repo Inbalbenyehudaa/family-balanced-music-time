@@ -24,6 +24,13 @@ export interface DrivesState {
      * anyone. Paused is the pair (`currentIdx < 0 && pausedFrom >= 0`).
      */
     pausedFrom: number;
+    /**
+     * Wall-clock start of the current break, for telemetry only. Deliberately
+     * NOT in the snapshot: a break interrupted by the OS discarding the tab
+     * comes back with `pausedFrom` intact but this at null, and the resume
+     * then reports no duration rather than a fabricated one.
+     */
+    pausedAt: number | null;
     driveInProgress: boolean;
     driveStartedAt: number | null;
     // Wall-clock anchor of the last tick. The tick credits (now − lastTickAt)
@@ -62,6 +69,7 @@ const initialState = {
     tapCounts: [0, 0, 0],
     currentIdx: -1,
     pausedFrom: -1,
+    pausedAt: null as number | null,
     driveInProgress: false,
     driveStartedAt: null as number | null,
     lastTickAt: null as number | null,
@@ -89,6 +97,7 @@ export const useDrivesStore = create<DrivesState>((set, get) => ({
             tapCounts: [0, 0, 0],
             currentIdx: -1,
             pausedFrom: -1,
+            pausedAt: null,
             driveInProgress: true,
             driveStartedAt: Date.now(),
             lastTickAt: Date.now(),
@@ -139,7 +148,8 @@ export const useDrivesStore = create<DrivesState>((set, get) => ({
         const { currentIdx } = get();
         if (currentIdx < 0) return;
         get().setCurrentIdx(-1);
-        set({ pausedFrom: currentIdx });
+        set({ pausedFrom: currentIdx, pausedAt: Date.now() });
+        recordDiagnostic('drive_break_started', {});
     },
 
     /**
@@ -148,17 +158,27 @@ export const useDrivesStore = create<DrivesState>((set, get) => ({
      * switch to a different pirate and counts as one.
      */
     resumeDrive: (i) => {
-        const { pausedFrom } = get();
+        const { pausedFrom, pausedAt } = get();
         const target = i ?? pausedFrom;
         if (target < 0) return;
+        if (pausedAt !== null) {
+            recordDiagnostic('drive_break_ended', {
+                breakSec: Math.round((Date.now() - pausedAt) / 1000),
+            });
+        }
         if (target === pausedFrom) {
             // Bypass setCurrentIdx so tapCounts is untouched. Nothing to
             // settle: a paused voyage credits nobody, so the elapsed time
             // since the last tick belongs to no one.
-            set({ currentIdx: target, pausedFrom: -1, lastTickAt: Date.now() });
+            set({
+                currentIdx: target,
+                pausedFrom: -1,
+                pausedAt: null,
+                lastTickAt: Date.now(),
+            });
         } else {
             get().setCurrentIdx(target);
-            set({ pausedFrom: -1 });
+            set({ pausedFrom: -1, pausedAt: null });
         }
     },
 
@@ -190,7 +210,12 @@ export const useDrivesStore = create<DrivesState>((set, get) => ({
         // Edge: zero taps — nothing to record.
         const anyTaps = tapCounts.some((n) => n > 0);
         if (!anyTaps && minutes.every((m) => m === 0)) {
-            set({ driveInProgress: false, currentIdx: -1, pausedFrom: -1 });
+            set({
+                driveInProgress: false,
+                currentIdx: -1,
+                pausedFrom: -1,
+                pausedAt: null,
+            });
             return;
         }
 
@@ -341,6 +366,7 @@ export const useDrivesStore = create<DrivesState>((set, get) => ({
             tapCounts: [0, 0, 0],
             currentIdx: -1,
             pausedFrom: -1,
+            pausedAt: null,
             driveInProgress: false,
             driveStartedAt: null,
             lastTickAt: null,

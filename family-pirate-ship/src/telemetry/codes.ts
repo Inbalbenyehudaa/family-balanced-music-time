@@ -52,6 +52,21 @@ export interface DiagnosticContexts {
     /** Landed on /drive/active with nothing to resume; guard sent us home. */
     drive_guard_redirect: Record<string, never>;
 
+    // ── Breaks ──────────────────────────────────────────────────────────
+    // Deliberately NOT named drive_resumed: that code means "voyage rebuilt
+    // from the snapshot after the OS discarded the tab", and it is the signal
+    // this whole channel was built to produce. Colliding on the name would
+    // poison it.
+    /** A break started — the timer stopped, crediting nobody. */
+    drive_break_started: Record<string, never>;
+    /**
+     * A break ended, with how long the timer was stopped. A
+     * drive_break_started with no drive_break_ended after it is a voyage that
+     * was ended — or discarded — while still on a break, which is the case
+     * worth watching for.
+     */
+    drive_break_ended: { breakSec: number };
+
     // ── Storage ─────────────────────────────────────────────────────────
     /** localStorage rejected a write — quota, or Safari private mode. */
     storage_write_failed: { key: 'drive_session' | 'telemetry' | 'settings_mirror' };
@@ -90,6 +105,9 @@ export const CODE_LEVELS: Record<DiagnosticCode, DiagnosticLevel> = {
     drive_resumed: 'warn',
     drive_snapshot_dropped: 'warn',
     drive_guard_redirect: 'warn',
+
+    drive_break_started: 'info',
+    drive_break_ended: 'info',
 
     storage_write_failed: 'error',
     idb_write_failed: 'error',

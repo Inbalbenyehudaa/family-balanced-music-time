@@ -1,6 +1,13 @@
 import { useRef, useState } from 'react';
 import type { Pirate } from '../types';
-import { SpyglassIcon, PirateAvatar, FlagBadge, AnchorIcon } from '../components/Art';
+import {
+    SpyglassIcon,
+    PirateAvatar,
+    FlagBadge,
+    AnchorIcon,
+    PauseMark,
+    PlayMark,
+} from '../components/Art';
 import { ScreenBackground } from '../components/ScreenBackground';
 import { OfflineIndicator } from '../components/OfflineIndicator';
 import { hexToRgb, blendColor } from '../utils';
@@ -12,31 +19,6 @@ function formatMMSS(totalSeconds: number): string {
         .padStart(2, '0');
     const ss = (s % 60).toString().padStart(2, '0');
     return `${mm}:${ss}`;
-}
-
-/**
- * The standard transport pause mark, deliberately not a nautical metaphor. A
- * five-year-old already knows this shape from every screen they have touched;
- * the pirate world lives in the words and the art, and the controls stay
- * obvious. (The anchor was not available anyway — it is already on End
- * Voyage, where it reads as "finish".)
- */
-function PauseMark({ size = 22, color = '#5D3F2A' }: { size?: number; color?: string }) {
-    return (
-        <svg width={size} height={size} viewBox="0 0 24 24" fill={color} aria-hidden="true">
-            <rect x="7" y="5" width="3.6" height="14" rx="1.6" />
-            <rect x="13.4" y="5" width="3.6" height="14" rx="1.6" />
-        </svg>
-    );
-}
-
-/** The counterpart to PauseMark, for the button that ends a break. */
-function PlayMark({ size = 22, color = '#5D3F2A' }: { size?: number; color?: string }) {
-    return (
-        <svg width={size} height={size} viewBox="0 0 24 24" fill={color} aria-hidden="true">
-            <path d="M8 5.6c0-.9 1-1.5 1.8-1L18 11c.7.4.7 1.5 0 1.9l-8.2 5.5c-.8.5-1.8-.1-1.8-1V5.6z" />
-        </svg>
-    );
 }
 
 export function ScreenDrive({
