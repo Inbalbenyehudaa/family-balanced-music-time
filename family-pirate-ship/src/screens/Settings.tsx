@@ -124,20 +124,44 @@ export function ScreenSettings({
     onSavePirates?: (pirates: Pirate[]) => void;
     familySection?: FamilySectionProps;
 }) {
-    const [localPirates, setLocalPirates] = useState<Pirate[]>(settings.pirates);
+    // Every control on this screen is staged here and committed by שמירה.
+    // Previously only the crew names worked that way and the sliders wrote
+    // through on each drag, so one screen carried two save models and the
+    // button sat greyed out while you were changing things it didn't govern.
+    const [draft, setDraft] = useState<SettingsValues>(settings);
     const [justSaved, setJustSaved] = useState(false);
 
+    // Re-sync when the server's values actually change — another device, a
+    // pull, or our own save landing. Keyed on the values rather than on
+    // `settings` itself, because the route adapter rebuilds that object every
+    // render; depending on its identity would wipe a draft mid-edit.
+    const serverKey = JSON.stringify([
+        settings.fairThreshold,
+        settings.harborThreshold,
+        settings.audio,
+        settings.fog,
+        settings.telemetryEnabled,
+        settings.pirates.map((p) => p.name),
+    ]);
     useEffect(() => {
-        setLocalPirates(settings.pirates);
-    }, [settings.pirates]);
+        setDraft(settings);
+    }, [serverKey]);
 
-    const piratesDirty = localPirates.some(
+    const namesDirty = draft.pirates.some(
         (p, i) => p.name !== (settings.pirates[i]?.name ?? ''),
     );
+    const dirty =
+        namesDirty ||
+        draft.fairThreshold !== settings.fairThreshold ||
+        draft.harborThreshold !== settings.harborThreshold ||
+        draft.telemetryEnabled !== settings.telemetryEnabled;
 
-    const handleSavePirates = () => {
-        if (!piratesDirty) return;
-        onSavePirates?.(localPirates);
+    const handleSave = () => {
+        if (!dirty) return;
+        setSettings(draft);
+        // Only when a name actually moved: savePirates enqueues a server write
+        // per pirate, and nudging a slider should not cost three of them.
+        if (namesDirty) onSavePirates?.(draft.pirates);
         setJustSaved(true);
         setTimeout(() => setJustSaved(false), 1800);
     };
@@ -166,8 +190,8 @@ export function ScreenSettings({
                             min={0.5}
                             max={0.7}
                             step={0.01}
-                            value={settings.fairThreshold}
-                            onChange={(v) => setSettings({ ...settings, fairThreshold: v })}
+                            value={draft.fairThreshold}
+                            onChange={(v) => setDraft({ ...draft, fairThreshold: v })}
                             format={(v) => `≤ ${Math.round(v * 100)}% חלק הגדול`}
                         />
                         <SettingSlider
@@ -175,8 +199,8 @@ export function ScreenSettings({
                             min={0.7}
                             max={0.9}
                             step={0.01}
-                            value={settings.harborThreshold}
-                            onChange={(v) => setSettings({ ...settings, harborThreshold: v })}
+                            value={draft.harborThreshold}
+                            onChange={(v) => setDraft({ ...draft, harborThreshold: v })}
                             format={(v) => `> ${Math.round(v * 100)}%`}
                         />
                     </SettingsSection>
@@ -185,10 +209,8 @@ export function ScreenSettings({
                         <SettingToggle
                             label="שליחת דוחות תקלות"
                             hint="עוזר לנו לאתר תקלות באפליקציה. לא נשלחים שמות, כתובות מייל או הקלטות — רק מידע טכני."
-                            value={settings.telemetryEnabled}
-                            onChange={(v) =>
-                                setSettings({ ...settings, telemetryEnabled: v })
-                            }
+                            value={draft.telemetryEnabled}
+                            onChange={(v) => setDraft({ ...draft, telemetryEnabled: v })}
                         />
                     </SettingsSection>
 
@@ -269,7 +291,7 @@ export function ScreenSettings({
                     </SettingsSection>
 
                     <SettingsSection title="עריכת הצוות">
-                        {localPirates.map((p, i) => (
+                        {draft.pirates.map((p, i) => (
                             <div
                                 key={p.kind}
                                 className="flex flex-row-reverse items-center gap-[10px] py-2"
@@ -278,9 +300,9 @@ export function ScreenSettings({
                                 <input
                                     value={p.name}
                                     onChange={(e) => {
-                                        const next = [...localPirates];
+                                        const next = [...draft.pirates];
                                         next[i] = { ...p, name: e.target.value };
-                                        setLocalPirates(next);
+                                        setDraft({ ...draft, pirates: next });
                                     }}
                                     className="flex-1 rounded-[10px] border-[1.5px] border-[rgba(93,63,42,0.3)] bg-surface-card px-2 py-[6px] text-right font-body text-base"
                                     style={{ direction: 'rtl' }}
@@ -288,16 +310,22 @@ export function ScreenSettings({
                                 <FlagBadge color={p.color} size={20} />
                             </div>
                         ))}
-                        {justSaved && (
-                            <div className="mt-2 text-center font-body text-sm text-text-secondary">
-                                ✓ נשמר
-                            </div>
-                        )}
                     </SettingsSection>
 
+                    {dirty && (
+                        <div className="text-center font-body text-sm text-text-secondary">
+                            יש שינויים שלא נשמרו
+                        </div>
+                    )}
+                    {justSaved && (
+                        <div className="text-center font-body text-sm text-text-secondary">
+                            ✓ נשמר
+                        </div>
+                    )}
+
                     <button
-                        onClick={handleSavePirates}
-                        disabled={!piratesDirty}
+                        onClick={handleSave}
+                        disabled={!dirty}
                         className="w-full cursor-pointer rounded-[14px] border-2 border-[var(--flag-mom)] bg-[var(--flag-mom)] px-4 py-3 font-body text-base font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         שמירה
