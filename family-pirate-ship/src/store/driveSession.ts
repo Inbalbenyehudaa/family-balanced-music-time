@@ -50,6 +50,13 @@ interface DriveSnapshot {
     minutes: number[];
     tapCounts: number[];
     currentIdx: number;
+    /**
+     * Additive since the break feature, which is why `v` stays at 1: the
+     * validator below only checks the keys it knows about, so a snapshot
+     * written before this field existed loads cleanly with `-1`. Bumping the
+     * version would have discarded every in-flight voyage on the deploy.
+     */
+    pausedFrom?: number;
     driveStartedAt: number | null;
     lastTickAt: number;
 }
@@ -61,6 +68,7 @@ export type RestoredDrive = Pick<
     | 'minutes'
     | 'tapCounts'
     | 'currentIdx'
+    | 'pausedFrom'
     | 'driveInProgress'
     | 'driveStartedAt'
     | 'lastTickAt'
@@ -113,6 +121,7 @@ export function saveDriveSession(s: DrivesState): void {
         minutes: s.minutes,
         tapCounts: s.tapCounts,
         currentIdx: s.currentIdx,
+        pausedFrom: s.pausedFrom,
         driveStartedAt: s.driveStartedAt,
         lastTickAt: s.lastTickAt,
     };
@@ -190,6 +199,10 @@ export function loadDriveSession(): RestoredDrive | null {
         minutes: s.minutes,
         tapCounts: s.tapCounts,
         currentIdx: s.currentIdx,
+        // A voyage discarded mid-break comes back mid-break. Anything absent
+        // or malformed reads as "not on a break", which is the safe default:
+        // the screen then shows a voyage waiting for its first tap.
+        pausedFrom: typeof s.pausedFrom === 'number' ? s.pausedFrom : -1,
         driveInProgress: true,
         driveStartedAt:
             typeof s.driveStartedAt === 'number' && Number.isFinite(s.driveStartedAt)

@@ -209,3 +209,85 @@ describe('drivesStore resume', () => {
         expect(fresh.getState().minutes).toEqual([0, 0, 0]);
     });
 });
+
+describe('driveSession — breaks', () => {
+    it('round-trips a voyage that was paused mid-flight', () => {
+        // Paused is the pair (currentIdx < 0 && pausedFrom >= 0) — both halves
+        // have to survive, or the family comes back to a voyage that has
+        // forgotten who was listening.
+        const state = inFlight({ currentIdx: -1, pausedFrom: 1 });
+        saveDriveSession(state);
+
+        const restored = loadDriveSession();
+        expect(restored).toMatchObject({ currentIdx: -1, pausedFrom: 1 });
+    });
+
+    it('reads a snapshot written before pausedFrom existed as not-on-a-break', () => {
+        // The back-compat case that decides whether `v` could stay at 1. A
+        // snapshot from the currently-deployed build has no pausedFrom key at
+        // all; it must load, not be thrown away.
+        localStorage.setItem(
+            DRIVE_SESSION_KEY,
+            JSON.stringify({
+                v: 1,
+                active: [true, true, true],
+                minutes: [60, 20, 0],
+                tapCounts: [1, 1, 0],
+                currentIdx: 0,
+                driveStartedAt: Date.now() - 90_000,
+                lastTickAt: Date.now(),
+            }),
+        );
+
+        const restored = loadDriveSession();
+        expect(restored).not.toBeNull();
+        expect(restored!.pausedFrom).toBe(-1);
+        expect(restored!.minutes).toEqual([60, 20, 0]);
+    });
+
+    it('treats a malformed pausedFrom as not-on-a-break rather than discarding the voyage', () => {
+        localStorage.setItem(
+            DRIVE_SESSION_KEY,
+            JSON.stringify({
+                v: 1,
+                active: [true, true, true],
+                minutes: [60, 20, 0],
+                tapCounts: [1, 1, 0],
+                currentIdx: 0,
+                pausedFrom: 'nonsense',
+                driveStartedAt: Date.now() - 90_000,
+                lastTickAt: Date.now(),
+            }),
+        );
+
+        const restored = loadDriveSession();
+        expect(restored).not.toBeNull();
+        expect(restored!.pausedFrom).toBe(-1);
+    });
+
+    it('credits the eviction gap to nobody when the tab died mid-break', () => {
+        vi.useFakeTimers();
+        const t0 = 1_700_000_000_000;
+        vi.setSystemTime(t0);
+
+        saveDriveSession(
+            inFlight({
+                currentIdx: -1,
+                pausedFrom: 0,
+                minutes: [90, 30, 0],
+                lastTickAt: t0,
+            }),
+        );
+
+        // Android discards the tab; the family comes back 25 minutes later.
+        vi.setSystemTime(t0 + 25 * 60_000);
+        const restored = loadDriveSession()!;
+        expect(restored.minutes).toEqual([90, 30, 0]);
+
+        // And the first tick after the restore credits nobody, because the
+        // voyage is still on a break.
+        useDrivesStore.setState({ ...restored });
+        useDrivesStore.getState().tick(1);
+        expect(useDrivesStore.getState().minutes).toEqual([90, 30, 0]);
+    });
+});
