@@ -306,3 +306,127 @@ describe('drivesStore.endDrive', () => {
         vi.useRealTimers();
     });
 });
+
+describe('drivesStore pause/resume', () => {
+    const T0 = 1_700_000_000_000;
+
+    beforeEach(() => {
+        vi.useFakeTimers();
+        vi.setSystemTime(T0);
+    });
+
+    afterEach(() => {
+        vi.useRealTimers();
+    });
+
+    /** Start a voyage with the kid listening since t0. */
+    function sailing() {
+        useDrivesStore.getState().startDrive([true, true, true]);
+        useDrivesStore.setState({ currentIdx: 0, tapCounts: [1, 0, 0], lastTickAt: T0 });
+    }
+
+    it('credits nobody while paused', () => {
+        sailing();
+        // 30s on the kid…
+        vi.setSystemTime(T0 + 30_000);
+        useDrivesStore.getState().pauseDrive();
+        const atPause = [...useDrivesStore.getState().minutes];
+
+        // …then a 10-minute break with the tick still running.
+        for (let i = 1; i <= 600; i++) {
+            vi.setSystemTime(T0 + 30_000 + i * 1000);
+            useDrivesStore.getState().tick(1);
+        }
+
+        expect(useDrivesStore.getState().minutes).toEqual(atPause);
+    });
+
+    it('settles the in-flight partial second onto the outgoing pirate', () => {
+        sailing();
+        vi.setSystemTime(T0 + 30_000);
+        useDrivesStore.getState().pauseDrive();
+
+        const { minutes, currentIdx, pausedFrom } = useDrivesStore.getState();
+        expect(minutes[0]).toBeGreaterThanOrEqual(29);
+        expect(minutes[0]).toBeLessThanOrEqual(31);
+        expect(currentIdx).toBe(-1);
+        expect(pausedFrom).toBe(0);
+    });
+
+    it('does not count a tap when resuming the same pirate', () => {
+        sailing();
+        vi.setSystemTime(T0 + 30_000);
+        useDrivesStore.getState().pauseDrive();
+        vi.setSystemTime(T0 + 90_000);
+        useDrivesStore.getState().resumeDrive();
+
+        const s = useDrivesStore.getState();
+        expect(s.currentIdx).toBe(0);
+        expect(s.pausedFrom).toBe(-1);
+        // A continuation, not a switch — the kid's count is untouched.
+        expect(s.tapCounts).toEqual([1, 0, 0]);
+    });
+
+    it('counts exactly one tap when resuming onto a different pirate', () => {
+        sailing();
+        vi.setSystemTime(T0 + 30_000);
+        useDrivesStore.getState().pauseDrive();
+        vi.setSystemTime(T0 + 90_000);
+        useDrivesStore.getState().resumeDrive(1);
+
+        const s = useDrivesStore.getState();
+        expect(s.currentIdx).toBe(1);
+        expect(s.pausedFrom).toBe(-1);
+        expect(s.tapCounts).toEqual([1, 1, 0]);
+        // The break is still credited to nobody — mom starts from zero and the
+        // kid keeps only the 30s he actually listened to.
+        expect(s.minutes[1]).toBe(0);
+        expect(s.minutes[0]).toBeLessThanOrEqual(31);
+    });
+
+    it('ends a paused voyage with the totals it had at the moment of pause', async () => {
+        sailing();
+        vi.setSystemTime(T0 + 120_000);
+        useDrivesStore.getState().pauseDrive();
+        const atPause = useDrivesStore.getState().minutes.map((m) => Math.round(m));
+
+        // Forgotten, paused, for 20 minutes.
+        vi.setSystemTime(T0 + 120_000 + 20 * 60_000);
+        await useDrivesStore.getState().endDrive(PIRATES);
+
+        const sync = useSyncStore.getState();
+        const calls = (sync.enqueue as unknown as ReturnType<typeof vi.fn>).mock.calls;
+        const record = calls.find((c) => c[0] === 'insert_drive')![1] as {
+            participants: Array<{ pirateId: string; totalSeconds: number }>;
+        };
+        const kid = record.participants.find((p) => p.pirateId === 'p-kid')!;
+        expect(kid.totalSeconds).toBe(atPause[0]);
+    });
+
+    it('is a no-op to pause when nobody is listening', () => {
+        useDrivesStore.getState().startDrive([true, true, true]);
+        // Straight off roll call: currentIdx is -1 and nobody has been tapped.
+        useDrivesStore.getState().pauseDrive();
+        expect(useDrivesStore.getState().pausedFrom).toBe(-1);
+    });
+
+    it('is a no-op to resume when there is no break to end', () => {
+        sailing();
+        useDrivesStore.getState().resumeDrive();
+        expect(useDrivesStore.getState().currentIdx).toBe(0);
+        expect(useDrivesStore.getState().tapCounts).toEqual([1, 0, 0]);
+    });
+
+    it('clears pausedFrom on startDrive and cancelDrive', () => {
+        sailing();
+        useDrivesStore.getState().pauseDrive();
+        expect(useDrivesStore.getState().pausedFrom).toBe(0);
+
+        useDrivesStore.getState().cancelDrive();
+        expect(useDrivesStore.getState().pausedFrom).toBe(-1);
+
+        useDrivesStore.setState({ pausedFrom: 2 });
+        useDrivesStore.getState().startDrive([true, true, true]);
+        expect(useDrivesStore.getState().pausedFrom).toBe(-1);
+    });
+});

@@ -17,6 +17,13 @@ export interface DrivesState {
     minutes: number[];
     tapCounts: number[];
     currentIdx: number;
+    /**
+     * Who to hand the music back to when a break ends. `-1` when not on a
+     * break. Distinct from `currentIdx: -1`, which on its own is ambiguous:
+     * it is also the state a voyage starts in, before roll call has picked
+     * anyone. Paused is the pair (`currentIdx < 0 && pausedFrom >= 0`).
+     */
+    pausedFrom: number;
     driveInProgress: boolean;
     driveStartedAt: number | null;
     // Wall-clock anchor of the last tick. The tick credits (now − lastTickAt)
@@ -33,6 +40,8 @@ export interface DrivesState {
     // Drive lifecycle
     startDrive: (active: boolean[]) => void;
     setCurrentIdx: (i: number) => void;
+    pauseDrive: () => void;
+    resumeDrive: (i?: number) => void;
     tick: (speed: number) => void;
     endDrive: (pirates: Pirate[]) => Promise<void>;
     cancelDrive: () => void;
@@ -52,6 +61,7 @@ const initialState = {
     minutes: [0, 0, 0],
     tapCounts: [0, 0, 0],
     currentIdx: -1,
+    pausedFrom: -1,
     driveInProgress: false,
     driveStartedAt: null as number | null,
     lastTickAt: null as number | null,
@@ -78,6 +88,7 @@ export const useDrivesStore = create<DrivesState>((set, get) => ({
             minutes: [0, 0, 0],
             tapCounts: [0, 0, 0],
             currentIdx: -1,
+            pausedFrom: -1,
             driveInProgress: true,
             driveStartedAt: Date.now(),
             lastTickAt: Date.now(),
@@ -113,6 +124,44 @@ export const useDrivesStore = create<DrivesState>((set, get) => ({
             return { currentIdx: i, minutes: nextMinutes, tapCounts, lastTickAt: now };
         }),
 
+    /**
+     * Stop the timer for a break. Nobody is credited while paused — `tick`
+     * already advances the anchor and credits no one when `currentIdx < 0`,
+     * so this is a UI affordance over a state the store has always had.
+     *
+     * Delegates the settle to `setCurrentIdx(-1)` rather than repeating it:
+     * that path already hands the partial second to the OUTGOING pirate and
+     * returns before the tap increment, which is exactly what a break needs.
+     * A break is not a switch and must never touch `tapCounts` — that column
+     * is persisted per participant and means "times switched to".
+     */
+    pauseDrive: () => {
+        const { currentIdx } = get();
+        if (currentIdx < 0) return;
+        get().setCurrentIdx(-1);
+        set({ pausedFrom: currentIdx });
+    },
+
+    /**
+     * End a break. With no argument the music goes back to whoever had it —
+     * a continuation, so no tap is counted. With an index it is a genuine
+     * switch to a different pirate and counts as one.
+     */
+    resumeDrive: (i) => {
+        const { pausedFrom } = get();
+        const target = i ?? pausedFrom;
+        if (target < 0) return;
+        if (target === pausedFrom) {
+            // Bypass setCurrentIdx so tapCounts is untouched. Nothing to
+            // settle: a paused voyage credits nobody, so the elapsed time
+            // since the last tick belongs to no one.
+            set({ currentIdx: target, pausedFrom: -1, lastTickAt: Date.now() });
+        } else {
+            get().setCurrentIdx(target);
+            set({ pausedFrom: -1 });
+        }
+    },
+
     tick: (speed) =>
         set((state) => {
             const now = Date.now();
@@ -141,7 +190,7 @@ export const useDrivesStore = create<DrivesState>((set, get) => ({
         // Edge: zero taps — nothing to record.
         const anyTaps = tapCounts.some((n) => n > 0);
         if (!anyTaps && minutes.every((m) => m === 0)) {
-            set({ driveInProgress: false, currentIdx: -1 });
+            set({ driveInProgress: false, currentIdx: -1, pausedFrom: -1 });
             return;
         }
 
@@ -291,6 +340,7 @@ export const useDrivesStore = create<DrivesState>((set, get) => ({
             minutes: [0, 0, 0],
             tapCounts: [0, 0, 0],
             currentIdx: -1,
+            pausedFrom: -1,
             driveInProgress: false,
             driveStartedAt: null,
             lastTickAt: null,
