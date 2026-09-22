@@ -49,8 +49,16 @@ export const useSyncStore = create<SyncState>((set) => ({
 
     flush: async () => {
         const { flushQueue } = await import('../sync/worker');
-        await flushQueue();
         const { readQueue } = await import('../sync/queue');
+        try {
+            await flushQueue();
+        } catch (err) {
+            // Re-thrown to callers as before; recorded on the way past so a
+            // family whose drives are quietly failing to sync is visible.
+            const { record } = await import('../telemetry/record');
+            record('sync_flush_failed', { queueDepth: (await readQueue()).length }, err);
+            throw err;
+        }
         const q = await readQueue();
         set({ queueLen: q.length, queue: q });
     },

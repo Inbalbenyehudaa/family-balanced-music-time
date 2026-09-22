@@ -301,6 +301,7 @@ export function SettingsRoute() {
         audio: settings.audioEnabled,
         fog: settings.fogEnabled,
         demoFastClock: true, // dev-only; screen doesn't render this
+        telemetryEnabled: settings.telemetryEnabled,
         pirates,
     };
 
@@ -314,6 +315,7 @@ export function SettingsRoute() {
                     harborThreshold: s.harborThreshold,
                     audioEnabled: s.audio,
                     fogEnabled: s.fog,
+                    telemetryEnabled: s.telemetryEnabled,
                 });
             }}
             drives={drives}

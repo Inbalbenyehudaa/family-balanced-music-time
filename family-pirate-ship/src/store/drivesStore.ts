@@ -7,6 +7,9 @@ import { useSettingsStore } from './settingsStore';
 import { useAuthStore } from './authStore';
 import { useSyncStore } from './syncStore';
 import { loadDriveSession } from './driveSession';
+// Aliased: `record` is already taken in endDrive by the server-shaped
+// DriveRecord it builds.
+import { record as recordDiagnostic } from '../telemetry/record';
 
 export interface DrivesState {
     // Drive timer state
@@ -66,7 +69,10 @@ export const useDrivesStore = create<DrivesState>((set, get) => ({
     // no resumable snapshot, which is the usual case.
     ...(loadDriveSession() ?? {}),
 
-    startDrive: (active) =>
+    startDrive: (active) => {
+        recordDiagnostic('drive_started', {
+            participantCount: active.filter(Boolean).length,
+        });
         set({
             active,
             minutes: [0, 0, 0],
@@ -75,7 +81,8 @@ export const useDrivesStore = create<DrivesState>((set, get) => ({
             driveInProgress: true,
             driveStartedAt: Date.now(),
             lastTickAt: Date.now(),
-        }),
+        });
+    },
 
     setCurrentIdx: (i) =>
         set((state) => {
@@ -187,6 +194,14 @@ export const useDrivesStore = create<DrivesState>((set, get) => ({
             islandId: unlock?.id,
             coastalFindId: find?.id,
         };
+
+        // Pairs with drive_started: a session showing one without the other
+        // is a voyage the app lost, which is the pattern worth watching for.
+        recordDiagnostic('drive_ended', {
+            durationSec: Math.round((endedAt - startedAt) / 1000),
+            tier: legacyTier,
+            participantCount: active.filter(Boolean).length,
+        });
 
         // Optimistic local write first — reveal plays from this immediately.
         set({

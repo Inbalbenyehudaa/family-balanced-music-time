@@ -20,6 +20,7 @@
  * IndexedDB transaction may never flush.
  */
 import type { DrivesState } from './drivesStore';
+import { record } from '../telemetry/record';
 
 export const DRIVE_SESSION_KEY = 'pirate-ship-drive-session-v1';
 
@@ -97,6 +98,13 @@ export function clearDriveSession(): void {
     }
 }
 
+/**
+ * Storage failures repeat every throttled write once they start, and a
+ * diagnostic per 5 seconds is noise. One report per session is enough to
+ * know it happened.
+ */
+let reportedStorageFailure = false;
+
 export function saveDriveSession(s: DrivesState): void {
     if (!s.driveInProgress || s.lastTickAt === null) return;
     const snapshot: DriveSnapshot = {
@@ -110,9 +118,15 @@ export function saveDriveSession(s: DrivesState): void {
     };
     try {
         localStorage.setItem(DRIVE_SESSION_KEY, JSON.stringify(snapshot));
-    } catch {
+    } catch (err) {
         // Quota exhausted, or Safari private mode. A voyage that can't be
         // snapshotted is still a perfectly good voyage — don't break it.
+        // But it is a voyage with no crash protection, which is worth
+        // knowing about, so it no longer fails entirely silently.
+        if (!reportedStorageFailure) {
+            reportedStorageFailure = true;
+            record('storage_write_failed', { key: 'drive_session' }, err);
+        }
     }
 }
 
@@ -157,10 +171,19 @@ export function loadDriveSession(): RestoredDrive | null {
     }
 
     const now = Date.now();
+    const gapSec = Math.round((now - s.lastTickAt) / 1000);
     if (now - s.lastTickAt > RESUME_MAX_GAP_MS) {
+        record('drive_snapshot_dropped', { gapSec });
         clearDriveSession();
         return null;
     }
+
+    // The signal this whole telemetry channel was built to produce: how
+    // often the OS actually discards a tab mid-voyage, and for how long.
+    record('drive_resumed', {
+        gapSec,
+        totalSec: Math.round(s.minutes.reduce((a, b) => a + b, 0)),
+    });
 
     return {
         active: s.active,

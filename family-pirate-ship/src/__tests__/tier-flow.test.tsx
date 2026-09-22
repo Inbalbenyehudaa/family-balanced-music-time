@@ -53,6 +53,7 @@ function buildSettingsValues(): SettingsValues {
         audio: DEFAULT_SETTINGS.audioEnabled,
         fog: DEFAULT_SETTINGS.fogEnabled,
         demoFastClock: false,
+        telemetryEnabled: DEFAULT_SETTINGS.telemetryEnabled,
         pirates: PIRATES,
     };
 }

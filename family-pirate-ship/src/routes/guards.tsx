@@ -1,8 +1,10 @@
+import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { useDrivesStore } from '../store/drivesStore';
 import { readPendingInvite } from '../lib/pendingInvite';
+import { record } from '../telemetry/record';
 
 /**
  * When an authed-but-family-less user is about to be bounced to
@@ -141,7 +143,14 @@ export function RequireFamily({ children }: { children: ReactNode }) {
  */
 export function RequireActiveDrive({ children }: { children: ReactNode }) {
     const driveStartedAt = useDrivesStore((s) => s.driveStartedAt);
-    if (driveStartedAt === null) return <Navigate to="/home" replace />;
+    const blocked = driveStartedAt === null;
+    // Recorded from an effect, not during render — a redirect is a side
+    // effect either way, but React may render this more than once per
+    // decision and only committed renders should produce a diagnostic.
+    useEffect(() => {
+        if (blocked) record('drive_guard_redirect', {});
+    }, [blocked]);
+    if (blocked) return <Navigate to="/home" replace />;
     return <>{children}</>;
 }
 

@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { AuthUser, Family, FamilyMember, Role } from '../types';
 import * as authApi from '../api/auth';
+import { record } from '../telemetry/record';
 import { getMyFamilyAndRole, listMembers } from '../api/families';
 import { listMembersWithProfile } from '../api/invites';
 
@@ -98,6 +99,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         } catch (err) {
             const msg = err instanceof Error ? err.message : String(err);
             console.error('[authStore.refreshFamily] failed', err);
+            record('family_lookup_failed', {}, err);
 
             // Stale JWT: the token is still in localStorage but the user
             // row was deleted (or the project was reset). Recovery is to
@@ -111,6 +113,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
                 console.warn(
                     '[authStore.refreshFamily] stale JWT detected — signing out',
                 );
+                record('stale_jwt_signout', {}, err);
                 try {
                     await authApi.signOut();
                 } catch {

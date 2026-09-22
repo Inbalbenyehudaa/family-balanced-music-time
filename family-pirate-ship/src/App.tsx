@@ -9,6 +9,8 @@ import { useAuthBootstrap } from './hooks/useAuthBootstrap';
 import { useOnlineStatus } from './hooks/useOnlineStatus';
 import { useSyncOnFocus } from './hooks/useSyncOnFocus';
 import { useDriveSessionPersistence } from './hooks/useDriveSessionPersistence';
+import { useTelemetry } from './hooks/useTelemetry';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { tweakState } from './routes/tweakState';
 import type { TweakValues, Screen } from './types';
 
@@ -19,9 +21,11 @@ import type { TweakValues, Screen } from './types';
  */
 export function App() {
     return (
-        <BrowserRouter>
-            <Shell />
-        </BrowserRouter>
+        <ErrorBoundary>
+            <BrowserRouter>
+                <Shell />
+            </BrowserRouter>
+        </ErrorBoundary>
     );
 }
 
@@ -30,6 +34,7 @@ function Shell() {
     useOnlineStatus();
     useSyncOnFocus();
     useDriveSessionPersistence();
+    useTelemetry();
     return (
         <>
             <div dir="rtl" lang="he" className="app-shell">

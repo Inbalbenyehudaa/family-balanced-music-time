@@ -87,6 +87,12 @@ export function ScreenMathGate({
 // ─────────────────────────────────────────────────────────────
 export interface SettingsValues extends TweakValues {
     pirates: Pirate[];
+    /**
+     * One switch for both channels — product analytics and debugging
+     * diagnostics. Splitting them would mean explaining the difference to a
+     * parent in a settings screen, which is not a conversation worth having.
+     */
+    telemetryEnabled: boolean;
 }
 
 export interface FamilySectionProps {
@@ -172,6 +178,17 @@ export function ScreenSettings({
                             value={settings.harborThreshold}
                             onChange={(v) => setSettings({ ...settings, harborThreshold: v })}
                             format={(v) => `> ${Math.round(v * 100)}%`}
+                        />
+                    </SettingsSection>
+
+                    <SettingsSection title="פרטיות">
+                        <SettingToggle
+                            label="שליחת דוחות תקלות"
+                            hint="עוזר לנו לאתר תקלות באפליקציה. לא נשלחים שמות, כתובות מייל או הקלטות — רק מידע טכני."
+                            value={settings.telemetryEnabled}
+                            onChange={(v) =>
+                                setSettings({ ...settings, telemetryEnabled: v })
+                            }
                         />
                     </SettingsSection>
 
@@ -343,6 +360,38 @@ function SettingSlider({
                 style={{ accentColor: 'var(--treasure-gold)' }}
             />
         </div>
+    );
+}
+
+function SettingToggle({
+    label,
+    hint,
+    value,
+    onChange,
+}: {
+    label: string;
+    hint?: string;
+    value: boolean;
+    onChange: (v: boolean) => void;
+}) {
+    return (
+        <label className="flex cursor-pointer items-start justify-between gap-3 py-2">
+            <span className="flex flex-1 flex-col gap-[2px] text-start">
+                <span className="font-body text-sm font-semibold text-text-primary">
+                    {label}
+                </span>
+                {hint && (
+                    <span className="font-body text-xs text-text-secondary">{hint}</span>
+                )}
+            </span>
+            <input
+                type="checkbox"
+                checked={value}
+                onChange={(e) => onChange(e.target.checked)}
+                className="mt-[2px] h-5 w-5 shrink-0"
+                style={{ accentColor: 'var(--treasure-gold)' }}
+            />
+        </label>
     );
 }
 

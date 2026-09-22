@@ -10,6 +10,14 @@ import { useSyncStore } from './syncStore';
  */
 export interface SettingsState {
     settings: Settings;
+    /**
+     * False until the server's row has landed. `settings` holds
+     * DEFAULT_SETTINGS before that, which is fine for thresholds but not for
+     * `telemetryEnabled`: defaulting to `true` and treating it as the
+     * family's answer would mean sending telemetry on the strength of a
+     * value nobody chose. Consent mirroring waits for this.
+     */
+    hydrated: boolean;
     setSettings: (patch: Partial<Settings>) => void;
     /** Same as setSettings but without enqueueing — used by pull to hydrate. */
     hydrateSettings: (settings: Settings) => void;
@@ -18,6 +26,7 @@ export interface SettingsState {
 
 export const useSettingsStore = create<SettingsState>((set, get) => ({
     settings: { ...DEFAULT_SETTINGS },
+    hydrated: false,
 
     setSettings: (patch) => {
         const next = { ...get().settings, ...patch };
@@ -32,7 +41,7 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
             .catch((err) => console.warn('[settingsStore] enqueue failed', err));
     },
 
-    hydrateSettings: (settings) => set({ settings }),
+    hydrateSettings: (settings) => set({ settings, hydrated: true }),
 
-    reset: () => set({ settings: { ...DEFAULT_SETTINGS } }),
+    reset: () => set({ settings: { ...DEFAULT_SETTINGS }, hydrated: false }),
 }));
