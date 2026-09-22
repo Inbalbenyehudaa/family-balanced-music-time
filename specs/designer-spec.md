@@ -233,9 +233,13 @@ File: `src/components/IOSDevice.tsx`. Exports `IOSStatusBar` and `IOSDevice`. Ne
 
 The most load-bearing screen. Structure is deliberately minimal:
 
-- Header: Spyglass icon (right), OfflineIndicator (left, hidden if healthy).
+- Header: Spyglass icon (right), OfflineIndicator (left, hidden if healthy). While the voyage is on a break, a gold strip sits above the top bar — pause mark + `בהפסקה` — and politely announces itself. It is the only defence against a family driving twenty minutes with the timer silently stopped, and it costs nothing while sailing because it simply isn't there.
 - Body: three pirate-row buttons filling `flex-1`, each `clamp(120px, 22vh, 170px)` tall. The active pirate gets the glow halo + glow-pulse animation + color-saturated background + "🎵" next to the name + 4 animated music bars at the bottom + "מאזין/ה עכשיו" italic caption. Inactive rows show flat plank treatment. "Sat out" rows drop to 50% opacity and show "לא כאן היום". Each row carries an mm:ss timer chip (top-aligned, opposite side of the music bars) and a `FlagBadge` in the top-left corner.
-- Footer: the "End voyage" hold-to-confirm button — a small 130×44 wood bar with a fill that sweeps left-to-right as the user holds. Fill is `wood-deep`; label flips to `sand-cream` past 40% progress. The two striped end-caps imitate a plank's sawn ends. This is a hand-rolled primitive, not a PlankButton.
+- **On a break** — a fourth row state, and its whole job is to look like neither of the other two. The paused pirate stays at **full opacity**: the background blend eases back from the listening row's saturation to roughly a third of the way in, the ring swaps the pirate's flag color for a 3px `--treasure-gold` edge with a soft `rgba(229,178,58,0.22)` halo, and glow-pulse is off — the row is held, not breathing. The music bars do not vanish; they **freeze mid-height** and recolor to a dim gold-brown `#6B5836`. The name carries the pause mark instead of "🎵", the caption reads `בהפסקה`, the mm:ss chip turns gold and holds its number instead of climbing, and the avatar stays normal — no greyscale, no `sleeping` zzz.
+- **Gold, not grey.** Grey is already spoken for: it means "not in the car". A pirate on a break is present and participating and must never wear the sat-out treatment. Gold is the app's existing attention-without-danger hue and sits nowhere near the red of End Voyage.
+- **The frozen bars are the point.** A row that drops its bars reads as empty; a row whose bars stopped mid-stride reads as *stopped*. Keep them.
+- Footer: two controls at opposite ends, deliberately not side by side. The "End voyage" hold-to-confirm button keeps the leading (right) end where it has always sat — a small 130×44 wood bar with a fill that sweeps left-to-right as the user holds. Fill is `wood-deep`; label flips to `sand-cream` past 40% progress. The two striped end-caps imitate a plank's sawn ends. This is a hand-rolled primitive, not a PlankButton. The break button takes the trailing (left) end: pause mark + `הפסקה` while sailing, play triangle + `המשיכו` while paused — the standard transport pair, flipping as one control rather than two. End is one hold from irreversible and this screen is used in a moving car, so the two never share an edge.
+- Copy on this screen is deliberately terse — `בהפסקה`, `הפסקה`, `המשיכו`. The frozen gold chip already says the time stopped; the words must not repeat it.
 
 ### 5.4 Spyglass — mid-drive peek
 
@@ -284,8 +288,11 @@ Parchment background. Top row: back arrow (right — flex-row-reverse), "הגד�
 - Ship: PirateShip (composite — hull, 3 masts, 3 sails, 3 pennants, 3 cargo zones, rising music notes, crow's nest on center mast)
 - Identity: FlagBadge
 - Icons: CompassIcon, SpyglassIcon, AnchorIcon, MapIcon, PirateFlagIcon
+- Transport (Drive only): the **pause mark** — two upright bars — and its partner the **play triangle**. Same mono-line weight as the icons above; the pause mark also rides the gold "on a break" strip above the top bar, and both take a turn in the footer break button.
 - Verdict: FrostedBanner
 - Frame: `CoastalFindIcon` water-halo frame, `IslandIllustration` circular frame
+
+**Why the pause mark is not nautical.** A five-year-old already knows ⏸ from every screen they have touched. The pirate world lives in the words and the art; the controls stay obvious. The anchor was not available in any case — it is already End Voyage, and a second anchor would read as "finish".
 
 ### 6.2 Raster (`src/assets/`)
 
