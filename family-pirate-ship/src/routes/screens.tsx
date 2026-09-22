@@ -110,7 +110,7 @@ export function DriveRoute() {
     const active = useDrivesStore((s) => s.active);
     const minutes = useDrivesStore((s) => s.minutes);
     const currentIdx = useDrivesStore((s) => s.currentIdx);
-    const setCurrentIdx = useDrivesStore((s) => s.setCurrentIdx);
+    const pausedFrom = useDrivesStore((s) => s.pausedFrom);
     // Confirm-end flow: idle → flashing (brief black gate) → confirming (modal up).
     // The pre-modal dim signals "this is irreversible" before the modal materializes.
     const [confirmPhase, setConfirmPhase] = useState<'idle' | 'flashing' | 'confirming'>('idle');
@@ -125,6 +125,33 @@ export function DriveRoute() {
 
     const elapsed = minutes.reduce((a, b) => a + b, 0);
 
+    /**
+     * One gesture, three meanings, resolved against live store state rather
+     * than the render's props so a tap during the same tick can't act on a
+     * stale index.
+     *
+     * Tapping the pirate who is already glowing used to be a no-op; it is now
+     * the fast door to a break, which matters because this screen is used by
+     * a parent in a moving car and that row is the largest target on it.
+     */
+    const onPirateTap = (i: number) => {
+        const s = useDrivesStore.getState();
+        if (!s.active[i]) return;
+        if (i === s.currentIdx) return s.pauseDrive();
+        // Resuming onto someone else is a genuine switch and counts a tap;
+        // resumeDrive draws that distinction, setCurrentIdx cannot.
+        if (s.currentIdx < 0 && s.pausedFrom >= 0) return s.resumeDrive(i);
+        s.setCurrentIdx(i);
+    };
+
+    const onTogglePause = () => {
+        const s = useDrivesStore.getState();
+        if (s.currentIdx >= 0) return s.pauseDrive();
+        // No argument — the music goes back to whoever had it, so a parent at
+        // a petrol pump is never asked to pick someone.
+        s.resumeDrive();
+    };
+
     return (
         <>
             <ScreenDrive
@@ -132,7 +159,9 @@ export function DriveRoute() {
                 active={active}
                 minutes={minutes}
                 currentIdx={currentIdx}
-                setCurrentIdx={setCurrentIdx}
+                pausedFrom={pausedFrom}
+                onPirateTap={onPirateTap}
+                onTogglePause={onTogglePause}
                 elapsed={elapsed}
                 onSpyglass={() => nav('/drive/spyglass')}
                 onEndVoyage={() => setConfirmPhase('flashing')}
