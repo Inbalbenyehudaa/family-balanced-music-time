@@ -1,9 +1,42 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import type { Island, Drive } from '../types';
-import { CompassIcon, ISLAND_IMAGES, LockIcon, PirateShip } from '../components/Art';
+import {
+    CompassIcon,
+    ISLAND_IMAGES,
+    LockIcon,
+    MissingArtMark,
+    PirateShip,
+} from '../components/Art';
 import { PlankButton } from '../components/PlankButton';
 import { ScreenBackground } from '../components/ScreenBackground';
 import { ISLANDS } from '../data';
+
+/**
+ * One unlocked island's pin. A component rather than inline JSX so it can
+ * hold its own load state: an island whose art never arrives shows the
+ * same drawn '?' as the reveal screen instead of an empty blue disc.
+ */
+function IslandThumb({ island }: { island: Island }) {
+    const [failed, setFailed] = useState(false);
+    const url = ISLAND_IMAGES[island.id];
+    return (
+        <div
+            className="h-16 w-16 overflow-hidden rounded-full bg-[#C5E0E8]"
+            style={{ boxShadow: '0 2px 4px rgba(93,63,42,0.3)' }}
+        >
+            {url && !failed ? (
+                <img
+                    src={url}
+                    alt={island.name}
+                    className="h-full w-full object-cover"
+                    onError={() => setFailed(true)}
+                />
+            ) : (
+                <MissingArtMark size={64} />
+            )}
+        </div>
+    );
+}
 
 export function ScreenMap({
     unlockedIds,
@@ -159,16 +192,7 @@ export function ScreenMap({
                             >
                                 {unlocked ? (
                                     <div className="island-tap-inner relative h-16 w-16 animate-soft-pulse">
-                                        <div
-                                            className="h-16 w-16 overflow-hidden rounded-full bg-[#C5E0E8]"
-                                            style={{ boxShadow: '0 2px 4px rgba(93,63,42,0.3)' }}
-                                        >
-                                            <img
-                                                src={ISLAND_IMAGES[isl.id]}
-                                                alt={isl.name}
-                                                className="h-full w-full object-cover"
-                                            />
-                                        </div>
+                                        <IslandThumb island={isl} />
                                         <div className="absolute left-1/2 top-full mt-[2px] -translate-x-1/2 whitespace-nowrap font-map text-[11px] font-bold text-wood-deep">
                                             {isl.name}
                                         </div>

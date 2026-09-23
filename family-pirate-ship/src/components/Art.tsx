@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 import type { Island, CoastalFind, PirateKind, Tier } from '../types';
 import kidAvatarUrl from '../assets/avatars/kid.webp';
@@ -61,6 +62,75 @@ export const ISLAND_IMAGES: Record<string, string> = {
     'croissant-bay': croissantBayUrl,
     'bamba-pool': bambaPoolUrl,
 };
+
+/**
+ * Whether a raster asset is actually available.
+ *
+ * Resolved through an HTMLImageElement rather than the SVG <image>
+ * element's own error event: that event is specified but not dependable
+ * across browsers, and this is a code path that by definition only runs
+ * when the network is already failing. `complete` is read synchronously
+ * so an asset already in cache never flashes a fallback on the way in.
+ *
+ * 'loading' deliberately renders the image rather than the fallback, so
+ * the normal case has no flicker and jsdom — where nothing ever loads —
+ * keeps rendering art in tests.
+ */
+function useRasterStatus(url: string | undefined): 'loading' | 'ready' | 'failed' {
+    const [status, setStatus] = useState<'loading' | 'ready' | 'failed'>(
+        url ? 'loading' : 'failed',
+    );
+    useEffect(() => {
+        if (!url) {
+            setStatus('failed');
+            return;
+        }
+        const img = new Image();
+        img.src = url;
+        if (img.complete && img.naturalWidth > 0) {
+            setStatus('ready');
+            return;
+        }
+        let live = true;
+        img.onload = () => {
+            if (live) setStatus('ready');
+        };
+        img.onerror = () => {
+            if (live) setStatus('failed');
+        };
+        setStatus('loading');
+        return () => {
+            live = false;
+        };
+    }, [url]);
+    return status;
+}
+
+/**
+ * The drawn '?' marker every raster fallback lands on. Shared so an
+ * island, a coastal find and a map pin all fail the same way.
+ */
+export function MissingArtMark({ size = 100 }: { size?: number }) {
+    return (
+        <div
+            style={{
+                width: size,
+                height: size,
+                borderRadius: '50%',
+                background: '#F0D49B',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontFamily: 'var(--font-display)',
+                fontSize: size * 0.5,
+                fontWeight: 'bold',
+                color: '#5D3F2A',
+            }}
+        >
+            ?
+        </div>
+    );
+}
 
 // ─────────────────────────────────────────────────────────────
 // Sky + ocean background scene
@@ -1205,8 +1275,9 @@ export function FrostedBanner({ children }: { tier?: Tier; children?: ReactNode 
 // Island — illustrated image clipped into a circular frame
 // ─────────────────────────────────────────────────────────────
 export function IslandIllustration({ island, size = 220, label, showLabel = true }: { island: Island | null; size?: number; label?: string; showLabel?: boolean }) {
+    const imageUrl = island ? ISLAND_IMAGES[island.id] : undefined;
+    const status = useRasterStatus(imageUrl);
     if (!island) return null;
-    const imageUrl = ISLAND_IMAGES[island.id];
     const clipId = `island-clip-${island.id}`;
     return (
         <div
@@ -1223,7 +1294,7 @@ export function IslandIllustration({ island, size = 220, label, showLabel = true
             <svg viewBox="0 0 220 220" width={size} height={size}>
                 <circle cx="110" cy="110" r="100" fill="#5FA8C7" opacity="0.4" />
                 <circle cx="110" cy="110" r="92" fill="#C5E0E8" opacity="0.5" />
-                {imageUrl ? (
+                {imageUrl && status !== 'failed' ? (
                     <>
                         <defs>
                             <clipPath id={clipId}>
@@ -1300,8 +1371,9 @@ export function CoastalFindIcon({
     size?: number;
     label?: string;
 }) {
+    const imageUrl = find ? COASTAL_FIND_IMAGES[find.id] : undefined;
+    const status = useRasterStatus(imageUrl);
     if (!find) return null;
-    const imageUrl = COASTAL_FIND_IMAGES[find.id];
     const clipId = `coastal-clip-${find.id}`;
     return (
         <div
@@ -1317,7 +1389,7 @@ export function CoastalFindIcon({
             <svg viewBox="0 0 120 120" width={size} height={size}>
                 <circle cx="60" cy="60" r="56" fill="#C5E0E8" opacity="0.7" />
                 <circle cx="60" cy="60" r="50" fill="#5FA8C7" opacity="0.4" />
-                {imageUrl ? (
+                {imageUrl && status !== 'failed' ? (
                     <>
                         <defs>
                             <clipPath id={clipId}>
