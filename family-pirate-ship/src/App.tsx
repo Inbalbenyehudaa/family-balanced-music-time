@@ -10,6 +10,7 @@ import { useOnlineStatus } from './hooks/useOnlineStatus';
 import { useSyncOnFocus } from './hooks/useSyncOnFocus';
 import { useDriveSessionPersistence } from './hooks/useDriveSessionPersistence';
 import { useTelemetry } from './hooks/useTelemetry';
+import { usePrefetchArt } from './hooks/usePrefetchArt';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { tweakState } from './routes/tweakState';
 import type { TweakValues, Screen } from './types';
@@ -35,6 +36,7 @@ function Shell() {
     useSyncOnFocus();
     useDriveSessionPersistence();
     useTelemetry();
+    usePrefetchArt();
     return (
         <>
             <div dir="rtl" lang="he" className="app-shell">

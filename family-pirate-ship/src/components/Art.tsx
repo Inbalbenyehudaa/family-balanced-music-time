@@ -34,7 +34,7 @@ const RASTER_AVATARS: Partial<Record<PirateKind, string>> = {
     dad: dadAvatarUrl,
 };
 
-const COASTAL_FIND_IMAGES: Record<string, string> = {
+export const COASTAL_FIND_IMAGES: Record<string, string> = {
     'bottle-message': bottleMessageUrl,
     'brass-key': brassKeyUrl,
     'rubber-duck': rubberDuckUrl,
@@ -62,6 +62,19 @@ export const ISLAND_IMAGES: Record<string, string> = {
     'croissant-bay': croissantBayUrl,
     'bamba-pool': bambaPoolUrl,
 };
+
+/**
+ * Every raster asset a reveal can land on, flattened for prefetching.
+ *
+ * Avatars are deliberately absent: they render on roll call and on the
+ * drive screen, so they are always already on the device by the time a
+ * voyage ends. Island art is the opposite — a locked island is never
+ * drawn anywhere, so its first request is the reveal itself.
+ */
+export const ART_URLS: string[] = [
+    ...Object.values(ISLAND_IMAGES),
+    ...Object.values(COASTAL_FIND_IMAGES),
+];
 
 /**
  * Whether a raster asset is actually available.
